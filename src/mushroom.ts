@@ -6,6 +6,7 @@ import "./utils/form/custom/ha-selector-mushroom-info";
 import "./utils/form/custom/ha-selector-mushroom-layout";
 
 export { AlarmControlPanelCard } from "./cards/alarm-control-panel-card/alarm-control-panel-card";
+export { BarCard } from "./cards/bar-card/bar-card";
 export { ChipsCard } from "./cards/chips-card/chips-card";
 export { ClimateCard } from "./cards/climate-card/climate-card";
 export { CoverCard } from "./cards/cover-card/cover-card";

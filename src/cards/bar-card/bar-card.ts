@@ -26,6 +26,7 @@ import {
 // import "../../shared/shape-icon";
 // import "../../shared/state-info";
 // import "../../shared/state-item";
+import "../../shared/slider-ex";
 import { computeAppearance } from "../../utils/appearance";
 import { MushroomBaseCard } from "../../utils/base-card";
 import { cardStyle } from "../../utils/card-styles";
@@ -155,7 +156,7 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
                         ${this.renderBadge(stateObj)}
                         ${this.renderStateInfo(stateObj, appearance, name, stateDisplay)};
                     </mushroom-state-item>
-                    <mushroom-slider
+                    <mushroom-slider-ex
                         .value=${stateObj.state}
                         .controllable=${false}
                         .disabled=${!isAvailable(stateObj)}
@@ -201,12 +202,9 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
                     --icon-color: rgb(var(--rgb-state-number));
                     --shape-color: rgba(var(--rgb-state-number), 0.2);
                 }
-                mushroom-slider {
+                mushroom-slider-ex {
                     --main-color: rgb(var(--rgb-state-number));
                     --bg-color: rgba(var(--rgb-state-number), 0.2);
-                }
-                mushroom-slider > container > .slider {
-                    background-color: blue;
                 }
             `,
         ];

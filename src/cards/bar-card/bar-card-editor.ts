@@ -79,7 +79,7 @@ export class BarCardEditor extends MushroomBaseElement implements LovelaceCardEd
 
         const schema = computeSchema(icon);
 
-        const data = { ...this._config,  } as any;
+        const data = { ...this._config } as any;
 
         return html`
             <ha-form

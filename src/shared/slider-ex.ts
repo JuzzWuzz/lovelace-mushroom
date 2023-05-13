@@ -10,7 +10,6 @@ import {
 import { customElement, property, query, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { styleMap } from "lit/directives/style-map.js";
-import "hammerjs";
 
 const getPercentageFromEvent = (e: HammerInput) => {
     const x = e.center.x;
@@ -26,8 +25,10 @@ const getSliderThreshold = (element: any): number | undefined => {
     return isNaN(threshold) ? DEFAULT_SLIDER_THRESHOLD : threshold;
 };
 
-@customElement("mushroom-slider")
-export class SliderItem extends LitElement {
+@customElement("mushroom-slider-ex")
+export class SliderExItem extends LitElement {
+    @property({ type: Boolean }) public controllable: boolean = false;
+
     @property({ type: Boolean }) public disabled: boolean = false;
 
     @property({ type: Boolean }) public inactive: boolean = false;
@@ -96,17 +97,17 @@ export class SliderItem extends LitElement {
 
             let savedValue;
             this._mc.on("panstart", () => {
-                if (this.disabled) return;
+                if (!this.controllable || this.disabled) return;
                 this.controlled = true;
                 savedValue = this.value;
             });
             this._mc.on("pancancel", () => {
-                if (this.disabled) return;
+                if (!this.controllable || this.disabled) return;
                 this.controlled = false;
                 this.value = savedValue;
             });
             this._mc.on("panmove", (e) => {
-                if (this.disabled) return;
+                if (!this.controllable || this.disabled) return;
                 const percentage = getPercentageFromEvent(e);
                 this.value = this.percentageToValue(percentage);
                 this.dispatchEvent(
@@ -118,7 +119,7 @@ export class SliderItem extends LitElement {
                 );
             });
             this._mc.on("panend", (e) => {
-                if (this.disabled) return;
+                if (!this.controllable || this.disabled) return;
                 this.controlled = false;
                 const percentage = getPercentageFromEvent(e);
                 // Prevent from input releasing on a value that doesn't lie on a step
@@ -140,7 +141,7 @@ export class SliderItem extends LitElement {
             });
 
             this._mc.on("singletap", (e) => {
-                if (this.disabled) return;
+                if (!this.controllable || this.disabled) return;
                 const percentage = getPercentageFromEvent(e);
                 // Prevent from input selecting a value that doesn't lie on a step
                 this.value = Math.round(this.percentageToValue(percentage) / this.step) * this.step;
@@ -176,6 +177,7 @@ export class SliderItem extends LitElement {
                     class="slider"
                     style=${styleMap({
                         "--value": `${this.valueToPercentage(this.value ?? 0)}`,
+                        cursor: this.controllable ? "pointer" : "default",
                     })}
                 >
                     <div class="slider-track-background"></div>

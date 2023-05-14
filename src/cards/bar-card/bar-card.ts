@@ -176,9 +176,6 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
             super.styles,
             cardStyle,
             css`
-                mushroom-state-item {
-                    cursor: pointer;
-                }
                 mushroom-shape-icon {
                     --icon-color: rgb(var(--rgb-state-number));
                     --shape-color: rgba(var(--rgb-state-number), 0.2);

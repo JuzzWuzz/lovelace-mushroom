@@ -1,6 +1,5 @@
 import { array, assign, number, object, optional, string } from "superstruct";
 import { LovelaceCardConfig } from "../../ha";
-import { ActionsSharedConfig, actionsSharedConfigStruct } from "../../shared/config/actions-config";
 import {
     AppearanceSharedConfig,
     appearanceSharedConfigStruct,
@@ -15,8 +14,7 @@ export interface SegmentConfig {
 
 export type BarCardConfig = LovelaceCardConfig &
     EntitySharedConfig &
-    AppearanceSharedConfig &
-    ActionsSharedConfig & {
+    AppearanceSharedConfig & {
         icon_color?: string;
         min?: Number;
         max?: Number;
@@ -30,7 +28,7 @@ const segmentStruct = object({
 
 export const BarCardConfigStruct = assign(
     lovelaceCardConfigStruct,
-    assign(entitySharedConfigStruct, appearanceSharedConfigStruct, actionsSharedConfigStruct),
+    assign(entitySharedConfigStruct, appearanceSharedConfigStruct),
     object({
         icon_color: optional(string()),
         min: optional(number()),

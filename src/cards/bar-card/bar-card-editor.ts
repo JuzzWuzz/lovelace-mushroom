@@ -4,18 +4,17 @@ import memoizeOne from "memoize-one";
 import { assert } from "superstruct";
 import { fireEvent, LovelaceCardEditor } from "../../ha";
 import setupCustomlocalize from "../../localize";
-import { computeActionsFormSchema } from "../../shared/config/actions-config";
 import { APPEARANCE_FORM_SCHEMA } from "../../shared/config/appearance-config";
 import { MushroomBaseElement } from "../../utils/base-element";
 import { GENERIC_LABELS } from "../../utils/form/generic-fields";
 import { HaFormSchema } from "../../utils/form/ha-form";
 import { stateIcon } from "../../utils/icons/state-icon";
 import { loadHaComponents } from "../../utils/loader";
-import { BAR_CARD_EDITOR_NAME, BAR_ENTITY_DOMAINS } from "./const";
+import { BAR_CARD_EDITOR_NAME } from "./const";
 import { BarCardConfig, BarCardConfigStruct } from "./bar-card-config";
 
 const computeSchema = memoizeOne((icon?: string): HaFormSchema[] => [
-    { name: "entity", selector: { entity: { domain: BAR_ENTITY_DOMAINS } } },
+    { name: "entity", selector: { entity: { domain: "sensor" } } },
     { name: "name", selector: { text: {} } },
     {
         type: "grid",
@@ -34,7 +33,6 @@ const computeSchema = memoizeOne((icon?: string): HaFormSchema[] => [
             { name: "max", selector: { number: { mode: "box" } } },
         ],
     },
-    ...computeActionsFormSchema(),
 ]);
 
 @customElement(BAR_CARD_EDITOR_NAME)

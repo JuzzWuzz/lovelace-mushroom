@@ -4,15 +4,11 @@ import { customElement, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { styleMap } from "lit/directives/style-map.js";
 import {
-    actionHandler,
-    ActionHandlerEvent,
     computeRTL,
     computeStateDisplay,
     formatNumber,
     getDefaultFormatOptions,
     getNumberFormatOptions,
-    handleAction,
-    hasAction,
     HomeAssistant,
     isActive,
     isAvailable,
@@ -34,13 +30,13 @@ import { computeRgbColor } from "../../utils/colors";
 import { registerCustomCard } from "../../utils/custom-cards";
 import { stateIcon } from "../../utils/icons/state-icon";
 import { computeEntityPicture } from "../../utils/info";
-import { BAR_CARD_EDITOR_NAME, BAR_CARD_NAME, BAR_ENTITY_DOMAINS } from "./const";
+import { BAR_CARD_EDITOR_NAME, BAR_CARD_NAME } from "./const";
 import { BarCardConfig } from "./bar-card-config";
 
 registerCustomCard({
     type: BAR_CARD_NAME,
     name: "Mushroom Bar Card",
-    description: "Card for numeric entities to be represented as a bar gauge",
+    description: "Card for numeric sensor entities to be represented as a horizontal bar gauge",
 });
 
 @customElement(BAR_CARD_NAME)
@@ -53,7 +49,7 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
     public static async getStubConfig(hass: HomeAssistant): Promise<BarCardConfig> {
         const entities = Object.keys(hass.states).filter(
             (e) =>
-                BAR_ENTITY_DOMAINS.includes(e.split(".")[0]) &&
+                e.split(".")[0] === "sensor" &&
                 hass.states[e] &&
                 !isNaN(Number(hass.states[e].state))
         );
@@ -73,18 +69,8 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
         this._config = {
             min: 0,
             max: 100,
-            tap_action: {
-                action: "more-info",
-            },
-            hold_action: {
-                action: "more-info",
-            },
             ...config,
         };
-    }
-
-    private _handleAction(ev: ActionHandlerEvent) {
-        handleAction(this, this.hass!, this._config!, ev.detail.action!);
     }
 
     private computeSeverity(numberValue: number): string | undefined {
@@ -146,11 +132,6 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
                     <mushroom-state-item
                         ?rtl=${rtl}
                         .appearance=${appearance}
-                        @action=${this._handleAction}
-                        .actionHandler=${actionHandler({
-                            hasHold: hasAction(this._config.hold_action),
-                            hasDoubleClick: hasAction(this._config.double_tap_action),
-                        })}
                     >
                         ${picture ? this.renderPicture(picture) : this.renderIcon(stateObj, icon)}
                         ${this.renderBadge(stateObj)}

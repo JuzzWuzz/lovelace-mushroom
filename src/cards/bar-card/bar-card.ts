@@ -28,7 +28,6 @@ import { MushroomBaseCard } from "../../utils/base-card";
 import { cardStyle } from "../../utils/card-styles";
 import { computeRgbColor } from "../../utils/colors";
 import { registerCustomCard } from "../../utils/custom-cards";
-import { stateIcon } from "../../utils/icons/state-icon";
 import { computeEntityPicture } from "../../utils/info";
 import { BAR_CARD_EDITOR_NAME, BAR_CARD_NAME } from "./const";
 import { BarCardConfig } from "./bar-card-config";
@@ -95,17 +94,19 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
         }
 
         const name = this._config.name || stateObj.attributes.friendly_name || "";
-        const icon = this._config.icon || stateIcon(stateObj);
+        const icon = this._config.icon;
         const appearance = computeAppearance(this._config);
         const picture = computeEntityPicture(stateObj, appearance.icon_type);
 
-        let stateDisplay = computeStateDisplay(
-            this.hass.localize,
-            stateObj,
-            this.hass.locale,
-            this.hass.entities,
-            this.hass.connection.haVersion
-        );
+        let stateDisplay = this.hass.formatEntityState
+        ? this.hass.formatEntityState(stateObj)
+        : computeStateDisplay(
+              this.hass.localize,
+              stateObj,
+              this.hass.locale,
+              this.hass.config,
+              this.hass.entities
+          );
         const numberValue = formatNumber(
             stateObj.state,
             this.hass.locale,
@@ -146,13 +147,13 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
                         .min=${this._config.min}
                         .max=${this._config.max}
                         style=${styleMap(sliderStyle)}
-                    />
+                    ></mushroom-slider-ex>
                 </mushroom-card>
             </ha-card>
         `;
     }
 
-    renderIcon(stateObj: HassEntity, icon: string): TemplateResult {
+    renderIcon(stateObj: HassEntity, icon?: string): TemplateResult {
         const active = isActive(stateObj);
         const iconStyle = {};
         const iconColor = this._config?.icon_color;
@@ -162,12 +163,9 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
             iconStyle["--shape-color"] = `rgba(${iconRgbColor}, 0.2)`;
         }
         return html`
-            <mushroom-shape-icon
-                slot="icon"
-                .disabled=${!active}
-                .icon=${icon}
-                style=${styleMap(iconStyle)}
-            ></mushroom-shape-icon>
+            <mushroom-shape-icon slot="icon" .disabled=${!active} style=${styleMap(iconStyle)}>
+                <ha-state-icon .state=${stateObj} .icon=${icon}></ha-state-icon>
+            </mushroom-shape-icon>
         `;
     }
 

@@ -6,9 +6,6 @@ import { styleMap } from "lit/directives/style-map.js";
 import {
     computeRTL,
     computeStateDisplay,
-    formatNumber,
-    getDefaultFormatOptions,
-    getNumberFormatOptions,
     HomeAssistant,
     isActive,
     isAvailable,
@@ -23,14 +20,20 @@ import {
 // import "../../shared/state-info";
 // import "../../shared/state-item";
 import "../../shared/slider-ex";
-import { computeAppearance } from "../../utils/appearance";
 import { MushroomBaseCard } from "../../utils/base-card";
 import { cardStyle } from "../../utils/card-styles";
 import { computeRgbColor } from "../../utils/colors";
 import { registerCustomCard } from "../../utils/custom-cards";
-import { computeEntityPicture } from "../../utils/info";
 import { BAR_CARD_EDITOR_NAME, BAR_CARD_NAME } from "./const";
-import { BarCardConfig } from "./bar-card-config";
+import {
+    BarCardConfig,
+    BAR_CARD_DEFAULT_MAX,
+    BAR_CARD_DEFAULT_MIN,
+    BAR_CARD_DEFAULT_SHOW_NAME,
+    BAR_CARD_DEFAULT_SHOW_STATE,
+    BAR_CARD_DEFAULT_SHOW_ICON,
+} from "./bar-card-config";
+import { Appearance } from "../../shared/config/appearance-config";
 
 registerCustomCard({
     type: BAR_CARD_NAME,
@@ -55,6 +58,8 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
         return {
             type: `custom:${BAR_CARD_NAME}`,
             entity: entities[0],
+            min: BAR_CARD_DEFAULT_MIN,
+            max: BAR_CARD_DEFAULT_MAX,
         };
     }
 
@@ -66,15 +71,16 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
 
     setConfig(config: BarCardConfig): void {
         this._config = {
-            min: 0,
-            max: 100,
+            show_name: BAR_CARD_DEFAULT_SHOW_NAME,
+            show_state: BAR_CARD_DEFAULT_SHOW_STATE,
+            show_icon: BAR_CARD_DEFAULT_SHOW_ICON,
             ...config,
         };
     }
 
-    private computeSeverity(numberValue: number): string | undefined {
+    private computeSeverity(config: BarCardConfig, numberValue: number): string | undefined {
         return (
-            this._config?.segments
+            config.segments
                 ?.filter((segment) => numberValue >= segment.from)
                 ?.sort((a, b) => b.from - a.from)
                 .shift()?.color ?? this._config?.icon_color
@@ -93,34 +99,34 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
             return this.renderNotFound(this._config);
         }
 
+        const available = isAvailable(stateObj);
         const name = this._config.name || stateObj.attributes.friendly_name || "";
         const icon = this._config.icon;
-        const appearance = computeAppearance(this._config);
-        const picture = computeEntityPicture(stateObj, appearance.icon_type);
+        const appearance: Appearance = {
+            layout: this._config.layout ?? "default",
+            fill_container: this._config.fill_container ?? false,
+            primary_info: this._config.show_name ?? BAR_CARD_DEFAULT_SHOW_NAME ? "name" : "none",
+            secondary_info:
+                this._config.show_state ?? BAR_CARD_DEFAULT_SHOW_STATE ? "state" : "none",
+            icon_type: this._config.show_icon ?? BAR_CARD_DEFAULT_SHOW_ICON ? "icon" : "none",
+        };
 
-        let stateDisplay = this.hass.formatEntityState
-        ? this.hass.formatEntityState(stateObj)
-        : computeStateDisplay(
-              this.hass.localize,
-              stateObj,
-              this.hass.locale,
-              this.hass.config,
-              this.hass.entities
-          );
-        const numberValue = formatNumber(
-            stateObj.state,
-            this.hass.locale,
-            getNumberFormatOptions(stateObj, this.hass.entities[stateObj.entity_id]) ??
-                getDefaultFormatOptions(stateObj.state)
-        );
-        stateDisplay = `${numberValue} ${stateObj.attributes.unit_of_measurement ?? ""}`;
+        const stateDisplay = this.hass.formatEntityState
+            ? this.hass.formatEntityState(stateObj)
+            : computeStateDisplay(
+                  this.hass.localize,
+                  stateObj,
+                  this.hass.locale,
+                  this.hass.config,
+                  this.hass.entities
+              );
 
         const rtl = computeRTL(this.hass);
 
-        const entityState = Number(stateObj.state);
+        const entityState = available ? Number(stateObj.state) : Number(0);
 
         const sliderStyle = {};
-        const sliderColor = this.computeSeverity(entityState);
+        const sliderColor = this.computeSeverity(this._config, entityState);
         if (sliderColor) {
             const iconRgbColor = computeRgbColor(sliderColor);
             sliderStyle["--main-color"] = `rgb(${iconRgbColor})`;
@@ -130,18 +136,14 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
         return html`
             <ha-card class=${classMap({ "fill-container": appearance.fill_container })}>
                 <mushroom-card .appearance=${appearance} ?rtl=${rtl}>
-                    <mushroom-state-item
-                        ?rtl=${rtl}
-                        .appearance=${appearance}
-                    >
-                        ${picture ? this.renderPicture(picture) : this.renderIcon(stateObj, icon)}
-                        ${this.renderBadge(stateObj)}
+                    <mushroom-state-item ?rtl=${rtl} .appearance=${appearance}>
+                        ${this.renderIcon(stateObj, icon)} ${this.renderBadge(stateObj)}
                         ${this.renderStateInfo(stateObj, appearance, name, stateDisplay)};
                     </mushroom-state-item>
                     <mushroom-slider-ex
-                        .value=${stateObj.state}
+                        .value=${entityState}
                         .controllable=${false}
-                        .disabled=${!isAvailable(stateObj)}
+                        .disabled=${!available}
                         .inactive=${!isActive(stateObj)}
                         .showActive=${true}
                         .min=${this._config.min}

@@ -13,12 +13,12 @@ import {
     UNAVAILABLE,
     UNKNOWN,
 } from "../../ha";
-import "../../shared/badge-icon";
-import "../../shared/card";
-import "../../shared/shape-avatar";
-import "../../shared/shape-icon";
-import "../../shared/state-info";
-import "../../shared/state-item";
+// import "../../shared/badge-icon";
+// import "../../shared/card";
+// import "../../shared/shape-avatar";
+// import "../../shared/shape-icon";
+// import "../../shared/state-info";
+// import "../../shared/state-item";
 import { MushroomBaseCard } from "../../utils/base-card";
 import { cardStyle } from "../../utils/card-styles";
 import { computeRgbColor } from "../../utils/colors";

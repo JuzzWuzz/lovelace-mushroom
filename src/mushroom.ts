@@ -25,5 +25,4 @@ export { ShellyUpdateCard } from "./cards/shelly-update-card/shelly-update-card"
 // export { UpdateCard } from "./cards/update-card/update-card";
 // export { VacuumCard } from "./cards/vacuum-card/vacuum-card";
 
-console.info(`%c🍄 Mushroom BarCard Addon 🍄 - requires lovelace-mushroom based on Mushroom ${version}`, "color: #ef5350; font-weight: 700;");
-console.info(`%c🍄 Mushroom ShellyUpdateCard Addon 🍄 - requires lovelace-mushroom based on Mushroom ${version}`, "color: #ef5350; font-weight: 700;");
+console.info(`%c🍄 Mushroom Juzz Addons 🍄 - requires lovelace-mushroom based on Mushroom ${version}`, "color: #ef5350; font-weight: 700;");

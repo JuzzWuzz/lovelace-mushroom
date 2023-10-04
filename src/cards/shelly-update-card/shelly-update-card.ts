@@ -4,8 +4,12 @@ import { customElement, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { styleMap } from "lit/directives/style-map.js";
 import {
+    ActionConfigParams,
+    actionHandler,
+    ActionHandlerEvent,
     computeRTL,
     DeviceRegistryEntry,
+    handleAction,
     HomeAssistant,
     LovelaceCard,
     LovelaceCardEditor,
@@ -72,6 +76,35 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
         };
 
         this._entityId = this._config.entity;
+    }
+
+    private _handleAction(ev: ActionHandlerEvent) {
+        if (!this._entityId || !this.hass) return;
+
+        const device = this.getDevice(this._entityId);
+        if (device) {
+            const actionConfig: ActionConfigParams = {
+                entity: this._entityId,
+                tap_action: {
+                    action: "none",
+                },
+                double_tap_action: {
+                    action: "navigate",
+                    navigation_path: `/config/devices/device/${device.id}`,
+                },
+                hold_action: {
+                    action: "none",
+                },
+            };
+            if (device.configuration_url) {
+                actionConfig.hold_action = {
+                    action: "url",
+                    url_path: device.configuration_url,
+                };
+            }
+
+            handleAction(this, this.hass, actionConfig, ev.detail.action!);
+        }
     }
 
     private _handleInstall(): void {
@@ -173,7 +206,15 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
 
         return html`
             <ha-card class=${classMap({ "fill-container": appearance.fill_container })}>
-                <mushroom-card .appearance=${appearance} ?rtl=${rtl}>
+                <mushroom-card
+                    ?rtl=${rtl}
+                    .appearance=${appearance}
+                    @action=${this._handleAction}
+                    .actionHandler=${actionHandler({
+                        hasHold: true,
+                        hasDoubleClick: true,
+                    })}
+                >
                     <mushroom-state-item ?rtl=${rtl} .appearance=${appearance}>
                         <mushroom-shape-icon
                             slot="icon"
@@ -249,6 +290,7 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
             cardStyle,
             css`
                 mushroom-state-item {
+                    cursor: pointer;
                     flex: 1 1 auto;
                 }
                 mushroom-shape-icon {

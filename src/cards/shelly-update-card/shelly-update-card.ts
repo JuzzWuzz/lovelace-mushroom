@@ -221,7 +221,7 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
         isAdmin: boolean,
         available: boolean,
         hasUpdate: boolean,
-        installing: boolean,
+        installing: boolean
     ): TemplateResult | typeof nothing {
         if (!isAdmin) return nothing;
 

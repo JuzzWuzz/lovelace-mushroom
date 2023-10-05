@@ -7,13 +7,25 @@ import { MushroomBaseElement } from "../../utils/base-element";
 import { GENERIC_LABELS } from "../../utils/form/generic-fields";
 import { HaFormSchema } from "../../utils/form/ha-form";
 import { loadHaComponents } from "../../utils/loader";
-import { BINARY_SENSOR_DOMAINS, SHELLY_UPDATE_CARD_EDITOR_NAME } from "./const";
-import { ShellyUpdateCardConfig, ShellyUpdateCardConfigStruct } from "./shelly-update-card-config";
+import { UPDATE_DOMAINS, SHELLY_UPDATE_CARD_EDITOR_NAME } from "./const";
+import {
+    SHELLY_UPDATE_CARD_DEFAULT_CONTROLS_REQUIRE_ADMIN,
+    SHELLY_UPDATE_CARD_DEFAULT_USE_DEVICE_NAME,
+    ShellyUpdateCardConfig,
+    ShellyUpdateCardConfigStruct,
+} from "./shelly-update-card-config";
 
 const SCHEMA: HaFormSchema[] = [
-    { name: "entity", selector: { entity: { domain: BINARY_SENSOR_DOMAINS } } },
+    { name: "entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
     { name: "name", selector: { text: {} } },
-    { name: "use_device_name", selector: { boolean: {} } },
+    {
+        type: "grid",
+        name: "",
+        schema: [
+            { name: "use_device_name", selector: { boolean: {} } },
+            { name: "controls_require_admin", selector: { boolean: {} } },
+        ],
+    },
 ];
 
 @customElement(SHELLY_UPDATE_CARD_EDITOR_NAME)
@@ -31,7 +43,10 @@ export class ShellyUpdateCardEditor extends MushroomBaseElement implements Lovel
 
         // Handle setting boolean defaults
         if ((this._config.use_device_name ?? null) === null) {
-            this._config.use_device_name = true;
+            this._config.use_device_name = SHELLY_UPDATE_CARD_DEFAULT_USE_DEVICE_NAME;
+        }
+        if ((this._config.controls_require_admin ?? null) === null) {
+            this._config.controls_require_admin = SHELLY_UPDATE_CARD_DEFAULT_CONTROLS_REQUIRE_ADMIN;
         }
     }
 
@@ -43,6 +58,9 @@ export class ShellyUpdateCardEditor extends MushroomBaseElement implements Lovel
         }
         if (schema.name === "use_device_name") {
             return "Use Device Name?";
+        }
+        if (schema.name === "controls_require_admin") {
+            return "Controls Require Admin?";
         }
         return this.hass!.localize(`ui.panel.lovelace.editor.card.generic.${schema.name}`);
     };

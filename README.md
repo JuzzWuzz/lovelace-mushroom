@@ -77,7 +77,6 @@ Different cards are available for differents entities :
 -   🔔 [Chips card](docs/cards/chips.md)
 -   ✏️ [Title card](docs/cards/title.md)
 -   📦 [Update card](docs/cards/update.md)
--   📦 [Shelly Update card](docs/cards/shelly-update.md)
 -   🧹 [Vacuum card](docs/cards/vacuum.md)
 -   📺 [Media card](docs/cards/media-player.md)
 -   🔒 [Lock card](docs/cards/lock.md)
@@ -86,6 +85,7 @@ Different cards are available for differents entities :
 -   📑 [Select card](docs/cards/select.md)
 -   🔢 [Number card](docs/cards/number.md)
 -   📊 [Bar card](docs/cards/bar.md)
+-   📦 [Shelly Update card](docs/cards/shelly-update.md)
 
 ### Theme customization
 

@@ -23,6 +23,7 @@ import "./cards/title-card/title-card";
 import "./cards/update-card/update-card";
 import "./cards/vacuum-card/vacuum-card";
 import "./cards/juzz-cards/bar-card/bar-card";
+import "./cards/juzz-cards/sensor-card/sensor-card";
 import "./cards/juzz-cards/shelly-update-card/shelly-update-card";
 
 console.info(`%c🍄 Mushroom 🍄 - ${version}`, "color: #ef5350; font-weight: 700;");

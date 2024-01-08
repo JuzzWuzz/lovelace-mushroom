@@ -6,7 +6,6 @@ import "./utils/form/custom/ha-selector-mushroom-info";
 import "./utils/form/custom/ha-selector-mushroom-layout";
 
 import "./cards/alarm-control-panel-card/alarm-control-panel-card";
-import "./cards/bar-card/bar-card";
 import "./cards/chips-card/chips-card";
 import "./cards/climate-card/climate-card";
 import "./cards/cover-card/cover-card";
@@ -23,5 +22,6 @@ import "./cards/template-card/template-card";
 import "./cards/title-card/title-card";
 import "./cards/update-card/update-card";
 import "./cards/vacuum-card/vacuum-card";
+import "./cards/juzz-cards/bar-card/bar-card";
 
 console.info(`%c🍄 Mushroom 🍄 - ${version}`, "color: #ef5350; font-weight: 700;");

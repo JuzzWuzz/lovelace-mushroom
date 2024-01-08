@@ -11,19 +11,19 @@ import {
     isAvailable,
     LovelaceCard,
     LovelaceCardEditor,
-} from "../../ha";
-import "../../shared/badge-icon";
-import "../../shared/button";
-import "../../shared/card";
-import "../../shared/shape-avatar";
-import "../../shared/shape-icon";
-import "../../shared/state-info";
-import "../../shared/state-item";
-import "../../shared/slider-ex";
-import { MushroomBaseCard } from "../../utils/base-card";
-import { cardStyle } from "../../utils/card-styles";
-import { computeRgbColor } from "../../utils/colors";
-import { registerCustomCard } from "../../utils/custom-cards";
+} from "../../../ha";
+import "../../../shared/badge-icon";
+import "../../../shared/button";
+import "../../../shared/card";
+import "../../../shared/shape-avatar";
+import "../../../shared/shape-icon";
+import "../../../shared/state-info";
+import "../../../shared/state-item";
+import "../../../shared/slider-ex";
+import { MushroomBaseCard } from "../../../utils/base-card";
+import { cardStyle } from "../../../utils/card-styles";
+import { computeRgbColor } from "../../../utils/colors";
+import { registerCustomCard } from "../../../utils/custom-cards";
 import { BAR_CARD_EDITOR_NAME, BAR_CARD_NAME } from "./const";
 import {
     BarCardConfig,
@@ -33,7 +33,7 @@ import {
     BAR_CARD_DEFAULT_SHOW_STATE,
     BAR_CARD_DEFAULT_SHOW_ICON,
 } from "./bar-card-config";
-import { Appearance } from "../../shared/config/appearance-config";
+import { Appearance } from "../../../shared/config/appearance-config";
 
 registerCustomCard({
     type: BAR_CARD_NAME,

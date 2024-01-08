@@ -1,12 +1,12 @@
 import { html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { assert } from "superstruct";
-import { fireEvent, LovelaceCardEditor } from "../../ha";
-import setupCustomlocalize from "../../localize";
-import { MushroomBaseElement } from "../../utils/base-element";
-import { GENERIC_LABELS } from "../../utils/form/generic-fields";
-import { HaFormSchema } from "../../utils/form/ha-form";
-import { loadHaComponents } from "../../utils/loader";
+import { fireEvent, LovelaceCardEditor } from "../../../ha";
+import setupCustomlocalize from "../../../localize";
+import { MushroomBaseElement } from "../../../utils/base-element";
+import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
+import { HaFormSchema } from "../../../utils/form/ha-form";
+import { loadHaComponents } from "../../../utils/loader";
 import { BAR_CARD_EDITOR_NAME } from "./const";
 import {
     BAR_CARD_DEFAULT_SHOW_ICON,

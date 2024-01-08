@@ -68,7 +68,6 @@ All the Mushroom cards can be configured using Dashboard UI editor.
 Different cards are available for differents entities :
 
 -   🚨 [Alarm card](docs/cards/alarm-control-panel.md)
--   📊 [Bar card](docs/cards/bar.md)
 -   🪟 [Cover card](docs/cards/cover.md)
 -   🪄 [Entity card](docs/cards/entity.md)
 -   💨 [Fan card](docs/cards/fan.md)
@@ -78,7 +77,6 @@ Different cards are available for differents entities :
 -   🔔 [Chips card](docs/cards/chips.md)
 -   ✏️ [Title card](docs/cards/title.md)
 -   📦 [Update card](docs/cards/update.md)
--   📦 [Shelly Update card](docs/cards/shelly-update.md)
 -   🧹 [Vacuum card](docs/cards/vacuum.md)
 -   📺 [Media card](docs/cards/media-player.md)
 -   🔒 [Lock card](docs/cards/lock.md)
@@ -86,6 +84,8 @@ Different cards are available for differents entities :
 -   🌡 [Climate card](docs/cards/climate.md)
 -   📑 [Select card](docs/cards/select.md)
 -   🔢 [Number card](docs/cards/number.md)
+-   📊 [Bar card](docs/cards/bar.md)
+-   📦 [Shelly Update card](docs/cards/shelly-update.md)
 
 ### Theme customization
 

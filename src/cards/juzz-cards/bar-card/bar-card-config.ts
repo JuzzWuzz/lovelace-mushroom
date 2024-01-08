@@ -1,8 +1,8 @@
 import { array, assign, boolean, number, object, optional, string } from "superstruct";
-import { LovelaceCardConfig } from "../../ha";
-import { EntitySharedConfig, entitySharedConfigStruct } from "../../shared/config/entity-config";
-import { lovelaceCardConfigStruct } from "../../shared/config/lovelace-card-config";
-import { Layout, layoutStruct } from "../../utils/layout";
+import { LovelaceCardConfig } from "../../../ha";
+import { EntitySharedConfig, entitySharedConfigStruct } from "../../../shared/config/entity-config";
+import { lovelaceCardConfigStruct } from "../../../shared/config/lovelace-card-config";
+import { Layout, layoutStruct } from "../../../utils/layout";
 
 export interface SegmentConfig {
     from: number;

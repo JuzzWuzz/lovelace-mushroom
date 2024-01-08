@@ -26,7 +26,6 @@ import { computeRgbColor } from "../../utils/colors";
 import { registerCustomCard } from "../../utils/custom-cards";
 import { UPDATE_DOMAINS, SHELLY_UPDATE_CARD_EDITOR_NAME, SHELLY_UPDATE_CARD_NAME } from "./const";
 import {
-    SHELLY_UPDATE_CARD_DEFAULT_CONTROLS_REQUIRE_ADMIN,
     SHELLY_UPDATE_CARD_DEFAULT_USE_DEVICE_NAME,
     ShellyUpdateCardConfig,
     ShellyUpdateCardConfigStrict,
@@ -68,7 +67,6 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
     setConfig(config: ShellyUpdateCardConfig): void {
         this._config = {
             use_device_name: SHELLY_UPDATE_CARD_DEFAULT_USE_DEVICE_NAME,
-            controls_require_admin: SHELLY_UPDATE_CARD_DEFAULT_CONTROLS_REQUIRE_ADMIN,
             ...config,
         };
 
@@ -138,7 +136,6 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
         const latestVersion = stateObj.attributes?.latest_version;
         const installProgress = stateObj.attributes?.in_progress;
         const installing = typeof installProgress === "number" || installProgress === true;
-        const isAdmin = !this._config.controls_require_admin || (this.hass.user?.is_admin ?? false);
 
         const name =
             this._config.name ||
@@ -210,7 +207,7 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
                             .multiline_secondary=${true}
                         ></mushroom-state-info>
                     </mushroom-state-item>
-                    ${this.renderControls(rtl, isAdmin, hasState, hasUpdate, installing)}
+                    ${this.renderControls(rtl, hasState, hasUpdate, installing)}
                 </mushroom-card>
             </ha-card>
         `;
@@ -218,12 +215,11 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
 
     private renderControls(
         rtl: boolean,
-        isAdmin: boolean,
         available: boolean,
         hasUpdate: boolean,
         installing: boolean
     ): TemplateResult | typeof nothing {
-        if (!isAdmin) return nothing;
+        if (this.hass.user?.is_admin !== true) return nothing;
 
         const iconStyle = {
             "--bg-color": "rgba(var(--rgb-disabled), 0.1)",

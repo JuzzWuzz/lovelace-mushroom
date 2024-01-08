@@ -9,7 +9,6 @@ import { HaFormSchema } from "../../utils/form/ha-form";
 import { loadHaComponents } from "../../utils/loader";
 import { UPDATE_DOMAINS, SHELLY_UPDATE_CARD_EDITOR_NAME } from "./const";
 import {
-    SHELLY_UPDATE_CARD_DEFAULT_CONTROLS_REQUIRE_ADMIN,
     SHELLY_UPDATE_CARD_DEFAULT_USE_DEVICE_NAME,
     ShellyUpdateCardConfig,
     ShellyUpdateCardConfigStruct,
@@ -18,14 +17,7 @@ import {
 const SCHEMA: HaFormSchema[] = [
     { name: "entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
     { name: "name", selector: { text: {} } },
-    {
-        type: "grid",
-        name: "",
-        schema: [
-            { name: "use_device_name", selector: { boolean: {} } },
-            { name: "controls_require_admin", selector: { boolean: {} } },
-        ],
-    },
+    { name: "use_device_name", selector: { boolean: {} } },
 ];
 
 @customElement(SHELLY_UPDATE_CARD_EDITOR_NAME)
@@ -45,9 +37,6 @@ export class ShellyUpdateCardEditor extends MushroomBaseElement implements Lovel
         if ((this._config.use_device_name ?? null) === null) {
             this._config.use_device_name = SHELLY_UPDATE_CARD_DEFAULT_USE_DEVICE_NAME;
         }
-        if ((this._config.controls_require_admin ?? null) === null) {
-            this._config.controls_require_admin = SHELLY_UPDATE_CARD_DEFAULT_CONTROLS_REQUIRE_ADMIN;
-        }
     }
 
     private _computeLabel = (schema: HaFormSchema) => {
@@ -58,9 +47,6 @@ export class ShellyUpdateCardEditor extends MushroomBaseElement implements Lovel
         }
         if (schema.name === "use_device_name") {
             return "Use Device Name?";
-        }
-        if (schema.name === "controls_require_admin") {
-            return "Controls Require Admin?";
         }
         return this.hass!.localize(`ui.panel.lovelace.editor.card.generic.${schema.name}`);
     };

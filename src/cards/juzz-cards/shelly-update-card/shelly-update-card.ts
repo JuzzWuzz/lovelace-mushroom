@@ -13,24 +13,24 @@ import {
     ON,
     UNAVAILABLE,
     UNKNOWN,
-} from "../../ha";
-import "../../shared/badge-icon";
-import "../../shared/card";
-import "../../shared/shape-avatar";
-import "../../shared/shape-icon";
-import "../../shared/state-info";
-import "../../shared/state-item";
-import { MushroomBaseCard } from "../../utils/base-card";
-import { cardStyle } from "../../utils/card-styles";
-import { computeRgbColor } from "../../utils/colors";
-import { registerCustomCard } from "../../utils/custom-cards";
+} from "../../../ha";
+import "../../../shared/badge-icon";
+import "../../../shared/card";
+import "../../../shared/shape-avatar";
+import "../../../shared/shape-icon";
+import "../../../shared/state-info";
+import "../../../shared/state-item";
+import { MushroomBaseCard } from "../../../utils/base-card";
+import { cardStyle } from "../../../utils/card-styles";
+import { computeRgbColor } from "../../../utils/colors";
+import { registerCustomCard } from "../../../utils/custom-cards";
 import { UPDATE_DOMAINS, SHELLY_UPDATE_CARD_EDITOR_NAME, SHELLY_UPDATE_CARD_NAME } from "./const";
 import {
     SHELLY_UPDATE_CARD_DEFAULT_USE_DEVICE_NAME,
     ShellyUpdateCardConfig,
     ShellyUpdateCardConfigStrict,
 } from "./shelly-update-card-config";
-import { Appearance } from "../../shared/config/appearance-config";
+import { Appearance } from "../../../shared/config/appearance-config";
 
 registerCustomCard({
     type: SHELLY_UPDATE_CARD_NAME,

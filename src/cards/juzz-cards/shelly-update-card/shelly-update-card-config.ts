@@ -1,7 +1,7 @@
 import { assign, boolean, object, optional } from "superstruct";
-import { entitySharedConfigStruct, EntitySharedConfig } from "../../shared/config/entity-config";
-import { lovelaceCardConfigStruct } from "../../shared/config/lovelace-card-config";
-import { LovelaceCardConfig } from "../../ha";
+import { entitySharedConfigStruct, EntitySharedConfig } from "../../../shared/config/entity-config";
+import { lovelaceCardConfigStruct } from "../../../shared/config/lovelace-card-config";
+import { LovelaceCardConfig } from "../../../ha";
 
 export const SHELLY_UPDATE_CARD_DEFAULT_USE_DEVICE_NAME = true;
 

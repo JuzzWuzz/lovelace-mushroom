@@ -4,12 +4,7 @@ import { lovelaceCardConfigStruct } from "../../../shared/config/lovelace-card-c
 import { LovelaceCardConfig } from "../../../ha";
 import { ENTITY_TYPES, EntityType } from "../../utils/base-device-card";
 
-export const SENSOR_CARD_DEFAULT_USE_DEVICE_NAME = true;
-export const SENSOR_CARD_DEFAULT_SHOW_OTHER_DEVICE_ENTITIES = true;
-export const SENSOR_CARD_SHOW_POWER_STATUS = true;
-export const SENSOR_CARD_DEFAULT_SHOW_LAST_SEEN = true;
-
-export type SensorCardConfig = LovelaceCardConfig &
+export type Zigbee2MQTTCardConfig = LovelaceCardConfig &
     EntitySharedConfig & {
         entity_type?: EntityType;
         icon_color?: string;
@@ -20,14 +15,14 @@ export type SensorCardConfig = LovelaceCardConfig &
     };
 
 // Enforce strict types for internal use
-export type SensorCardConfigStrict = SensorCardConfig & {
+export type Zigbee2MQTTCardConfigStrict = Zigbee2MQTTCardConfig & {
     use_device_name: boolean;
     show_other_device_entities: boolean;
     show_power_status: boolean;
     show_last_seen: boolean;
 };
 
-export const SensorCardConfigStruct = assign(
+export const Zigbee2MQTTCardConfigStruct = assign(
     lovelaceCardConfigStruct,
     entitySharedConfigStruct,
     object({

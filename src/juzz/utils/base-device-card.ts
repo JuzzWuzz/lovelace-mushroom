@@ -7,7 +7,7 @@ import "../shared/row-container";
 import { MushroomBaseCard } from "../../utils/base-card";
 import { cardStyle } from "../../utils/card-styles";
 
-export const ENTITY_TYPES = ["contact", "climate", "motion", "light", "air_purifier"] as const;
+export const ENTITY_TYPES = ["air_purifier", "climate", "contact", "light", "motion"] as const;
 export type EntityType = (typeof ENTITY_TYPES)[number];
 
 export class MushroomBaseDeviceCard extends MushroomBaseCard {

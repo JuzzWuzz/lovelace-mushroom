@@ -85,7 +85,7 @@ Different cards are available for differents entities :
 -   📑 [Select card](docs/cards/select.md)
 -   🔢 [Number card](docs/cards/number.md)
 -   📊 [Bar card](docs/cards/bar.md)
--   🪄 [Sensor card](docs/cards/sensor.md)
+-   🪄 [Zigbee2MQTT card](docs/cards/zigbee2mqtt.md)
 -   📦 [Shelly Update card](docs/cards/shelly-update.md)
 
 ### Theme customization

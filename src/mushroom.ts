@@ -25,7 +25,7 @@ import "./cards/update-card/update-card";
 import "./cards/vacuum-card/vacuum-card";
 
 import "./juzz/cards/bar-card/bar-card";
-import "./juzz/cards/sensor-card/sensor-card";
+import "./juzz/cards/zigbee2mqtt-card/zigbee2mqtt-card";
 import "./juzz/cards/shelly-update-card/shelly-update-card";
 
 console.info(`%c🍄 Mushroom 🍄 - ${version}`, "color: #ef5350; font-weight: 700;");

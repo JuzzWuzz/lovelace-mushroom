@@ -17,57 +17,58 @@ import "../../../shared/shape-avatar";
 import "../../../shared/shape-icon";
 import "../../../shared/state-info";
 import "../../../shared/state-item";
-import { MushroomBaseDeviceCard } from "../../utils/base-device-card";
+import { EntityType, MushroomBaseDeviceCard } from "../../utils/base-device-card";
 import { computeRgbColor } from "../../../utils/colors";
 import { registerCustomCard } from "../../../utils/custom-cards";
-import { SENSOR_CARD_DOMAINS, SENSOR_CARD_EDITOR_NAME, SENSOR_CARD_NAME } from "./const";
 import {
-    SENSOR_CARD_DEFAULT_SHOW_LAST_SEEN,
-    SENSOR_CARD_DEFAULT_SHOW_OTHER_DEVICE_ENTITIES,
-    SENSOR_CARD_DEFAULT_USE_DEVICE_NAME,
-    SENSOR_CARD_SHOW_POWER_STATUS,
-    SensorCardConfig,
-    SensorCardConfigStrict,
-} from "./sensor-card-config";
+    ZIGBEE2MQTT_CARD_DEFAULT_SHOW_LAST_SEEN,
+    ZIGBEE2MQTT_CARD_DEFAULT_SHOW_OTHER_DEVICE_ENTITIES,
+    ZIGBEE2MQTT_CARD_DEFAULT_USE_DEVICE_NAME,
+    ZIGBEE2MQTT_CARD_DOMAINS,
+    ZIGBEE2MQTT_CARD_EDITOR_NAME,
+    ZIGBEE2MQTT_CARD_NAME,
+    ZIGBEE2MQTT_CARD_SHOW_POWER_STATUS,
+} from "./const";
+import { Zigbee2MQTTCardConfig, Zigbee2MQTTCardConfigStrict } from "./zigbee2mqtt-card-config";
 
 registerCustomCard({
-    type: SENSOR_CARD_NAME,
-    name: "Mushroom Sensor Card",
+    type: ZIGBEE2MQTT_CARD_NAME,
+    name: "Mushroom Zigbee2MQTT Card",
     description:
-        "Card for Sensors like Contact, Motion, and Temperature which shows its state and related device entities",
+        "Card for Zigbee2MQTT devices like Contact, Climate, and Motion sensors. Shows the primary and related entity states",
 });
 
-@customElement(SENSOR_CARD_NAME)
-export class SensorCard extends MushroomBaseDeviceCard implements LovelaceCard {
+@customElement(ZIGBEE2MQTT_CARD_NAME)
+export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceCard {
     public static async getConfigElement(): Promise<LovelaceCardEditor> {
-        await import("./sensor-card-editor");
-        return document.createElement(SENSOR_CARD_EDITOR_NAME) as LovelaceCardEditor;
+        await import("./zigbee2mqtt-card-editor");
+        return document.createElement(ZIGBEE2MQTT_CARD_EDITOR_NAME) as LovelaceCardEditor;
     }
 
-    public static async getStubConfig(hass: HomeAssistant): Promise<SensorCardConfig> {
+    public static async getStubConfig(hass: HomeAssistant): Promise<Zigbee2MQTTCardConfig> {
         const entities = Object.keys(hass.states);
         const updateEntities = entities.filter((e) =>
-            SENSOR_CARD_DOMAINS.includes(e.split(".")[0])
+            ZIGBEE2MQTT_CARD_DOMAINS.includes(e.split(".")[0])
         );
         return {
-            type: `custom:${SENSOR_CARD_NAME}`,
+            type: `custom:${ZIGBEE2MQTT_CARD_NAME}`,
             entity: updateEntities[0],
             use_device_name: true,
         };
     }
 
-    @state() private _config?: SensorCardConfigStrict;
+    @state() private _config?: Zigbee2MQTTCardConfigStrict;
 
     getCardSize(): number | Promise<number> {
         return 1;
     }
 
-    setConfig(config: SensorCardConfig): void {
+    setConfig(config: Zigbee2MQTTCardConfig): void {
         this._config = {
-            use_device_name: SENSOR_CARD_DEFAULT_USE_DEVICE_NAME,
-            show_other_device_entities: SENSOR_CARD_DEFAULT_SHOW_OTHER_DEVICE_ENTITIES,
-            show_power_status: SENSOR_CARD_SHOW_POWER_STATUS,
-            show_last_seen: SENSOR_CARD_DEFAULT_SHOW_LAST_SEEN,
+            use_device_name: ZIGBEE2MQTT_CARD_DEFAULT_USE_DEVICE_NAME,
+            show_other_device_entities: ZIGBEE2MQTT_CARD_DEFAULT_SHOW_OTHER_DEVICE_ENTITIES,
+            show_power_status: ZIGBEE2MQTT_CARD_SHOW_POWER_STATUS,
+            show_last_seen: ZIGBEE2MQTT_CARD_DEFAULT_SHOW_LAST_SEEN,
             ...config,
         };
 
@@ -105,7 +106,7 @@ export class SensorCard extends MushroomBaseDeviceCard implements LovelaceCard {
             "";
 
         const iconStyle = {};
-        const iconColor = this._config.icon_color;
+        const iconColor = this.getIconColor(entityType, this._config.icon_color);
         if (iconColor) {
             const iconRgbColor = computeRgbColor(iconColor);
             iconStyle["--icon-color"] = `rgb(${iconRgbColor})`;
@@ -152,6 +153,32 @@ export class SensorCard extends MushroomBaseDeviceCard implements LovelaceCard {
                 </mushroom-card>
             </ha-card>
         `;
+    }
+
+    private getIconColor(entityType?: EntityType, configIconColor?: string) {
+        if (configIconColor) {
+            return configIconColor;
+        }
+        switch (entityType) {
+            case "air_purifier": {
+                return "yellow";
+            }
+            case "climate": {
+                return "purple";
+            }
+            case "contact": {
+                return "cyan";
+            }
+            case "light": {
+                return "deep-orange";
+            }
+            case "motion": {
+                return "pink";
+            }
+            default: {
+                return undefined;
+            }
+        }
     }
 
     private renderPowerState(

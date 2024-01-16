@@ -4,6 +4,7 @@ import { version } from "../package.json";
 // import "./utils/form/custom/ha-selector-mushroom-icon-type";
 // import "./utils/form/custom/ha-selector-mushroom-info";
 // import "./utils/form/custom/ha-selector-mushroom-layout";
+import "./juzz/utils/form/custom/ha-selector-mushroom-entity-type";
 
 // import "./cards/alarm-control-panel-card/alarm-control-panel-card";
 // import "./cards/chips-card/chips-card";
@@ -22,8 +23,8 @@ import { version } from "../package.json";
 // import "./cards/title-card/title-card";
 // import "./cards/update-card/update-card";
 // import "./cards/vacuum-card/vacuum-card";
-import "./cards/juzz-cards/bar-card/bar-card";
-import "./cards/juzz-cards/sensor-card/sensor-card";
-import "./cards/juzz-cards/shelly-update-card/shelly-update-card";
+import "./juzz/cards/bar-card/bar-card";
+import "./juzz/cards/shelly-update-card/shelly-update-card";
+import "./juzz/cards/zigbee2mqtt-card/zigbee2mqtt-card";
 
 console.info(`%c🍄 Mushroom Juzz Addons 🍄 - requires lovelace-mushroom based on Mushroom ${version}`, "color: #ef5350; font-weight: 700;");

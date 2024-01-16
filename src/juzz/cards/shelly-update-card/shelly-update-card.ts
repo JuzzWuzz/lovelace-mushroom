@@ -5,8 +5,6 @@ import { classMap } from "lit/directives/class-map.js";
 import { styleMap } from "lit/directives/style-map.js";
 import {
     computeRTL,
-    DeviceRegistryEntry,
-    fireEvent,
     HomeAssistant,
     LovelaceCard,
     LovelaceCardEditor,
@@ -20,7 +18,8 @@ import "../../../shared/shape-avatar";
 import "../../../shared/shape-icon";
 import "../../../shared/state-info";
 import "../../../shared/state-item";
-import { MushroomBaseCard } from "../../../utils/base-card";
+import { Appearance } from "../../../shared/config/appearance-config";
+import { MushroomBaseDeviceCard } from "../../utils/base-device-card";
 import { cardStyle } from "../../../utils/card-styles";
 import { computeRgbColor } from "../../../utils/colors";
 import { registerCustomCard } from "../../../utils/custom-cards";
@@ -30,7 +29,6 @@ import {
     ShellyUpdateCardConfig,
     ShellyUpdateCardConfigStrict,
 } from "./shelly-update-card-config";
-import { Appearance } from "../../../shared/config/appearance-config";
 
 registerCustomCard({
     type: SHELLY_UPDATE_CARD_NAME,
@@ -40,7 +38,7 @@ registerCustomCard({
 });
 
 @customElement(SHELLY_UPDATE_CARD_NAME)
-export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
+export class ShellyUpdateCard extends MushroomBaseDeviceCard implements LovelaceCard {
     public static async getConfigElement(): Promise<LovelaceCardEditor> {
         await import("./shelly-update-card-editor");
         return document.createElement(SHELLY_UPDATE_CARD_EDITOR_NAME) as LovelaceCardEditor;
@@ -57,8 +55,6 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
     }
 
     @state() private _config?: ShellyUpdateCardConfigStrict;
-    private _entityId?: string;
-    private _device?: DeviceRegistryEntry;
 
     getCardSize(): number | Promise<number> {
         return 1;
@@ -78,8 +74,8 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
             return;
         }
 
-        const topic = this.getDevice(this._entityId)
-            ?.identifiers?.map((id) => id[1])
+        const topic = this.device?.identifiers
+            ?.map((id) => id[1])
             ?.find((id) => id.search(/_announce_/) > 0)
             ?.replace(/^.*_announce_/, "");
 
@@ -99,23 +95,6 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
         this.hass.callService("update", "install", {
             entity_id: this._entityId,
         });
-    }
-
-    private _handleDeviceInfo(): void {
-        if (!this._entityId || !this.hass) return;
-
-        const device = this.getDevice(this._entityId);
-        if (device) {
-            fireEvent(this, "hass-action", {
-                config: {
-                    tap_action: {
-                        action: "navigate",
-                        navigation_path: `/config/devices/device/${device.id}`,
-                    },
-                },
-                action: "tap",
-            });
-        }
     }
 
     protected render() {
@@ -139,7 +118,7 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
 
         const name =
             this._config.name ||
-            this.getDeviceName(this._entityId, this._config.use_device_name) ||
+            this.getDeviceName(this._config.use_device_name) ||
             stateObj.attributes.friendly_name ||
             "";
         let icon = "mdi:cloud-check-outline";
@@ -207,13 +186,13 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
                             .multiline_secondary=${true}
                         ></mushroom-state-info>
                     </mushroom-state-item>
-                    ${this.renderControls(rtl, hasState, hasUpdate, installing)}
+                    ${this.renderControls2(rtl, hasState, hasUpdate, installing)}
                 </mushroom-card>
             </ha-card>
         `;
     }
 
-    private renderControls(
+    protected renderControls2(
         rtl: boolean,
         available: boolean,
         hasUpdate: boolean,
@@ -245,7 +224,7 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
                 ></mushroom-button>
                 <mushroom-button
                     icon="mdi:cog-outline"
-                    @click=${this._handleDeviceInfo}
+                    @click=${this.navigateToDeviceInfoPage}
                     style=${styleMap(iconStyle)}
                 ></mushroom-button>
             </mushroom-button-group>
@@ -278,24 +257,5 @@ export class ShellyUpdateCard extends MushroomBaseCard implements LovelaceCard {
                 }
             `,
         ];
-    }
-
-    private getDevice(entityId: string): DeviceRegistryEntry | undefined {
-        if (!this._device && this.hass) {
-            const deviceId = this.hass.entities[entityId]?.device_id;
-            if (deviceId) {
-                this._device = this.hass.devices[deviceId];
-            }
-        }
-
-        return this._device;
-    }
-
-    private getDeviceName(entityId: string, useDeviceName: boolean): string | undefined {
-        let deviceName: string | undefined;
-        if (useDeviceName) {
-            deviceName = this.getDevice(entityId)?.name ?? deviceName;
-        }
-        return deviceName;
     }
 }

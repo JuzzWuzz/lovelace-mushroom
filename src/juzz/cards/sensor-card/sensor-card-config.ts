@@ -1,7 +1,8 @@
-import { assign, boolean, object, optional, string } from "superstruct";
+import { assign, boolean, enums, object, optional, string } from "superstruct";
 import { entitySharedConfigStruct, EntitySharedConfig } from "../../../shared/config/entity-config";
 import { lovelaceCardConfigStruct } from "../../../shared/config/lovelace-card-config";
 import { LovelaceCardConfig } from "../../../ha";
+import { ENTITY_TYPES, EntityType } from "../../utils/base-device-card";
 
 export const SENSOR_CARD_DEFAULT_USE_DEVICE_NAME = true;
 export const SENSOR_CARD_DEFAULT_SHOW_OTHER_DEVICE_ENTITIES = true;
@@ -10,6 +11,7 @@ export const SENSOR_CARD_DEFAULT_SHOW_LAST_SEEN = true;
 
 export type SensorCardConfig = LovelaceCardConfig &
     EntitySharedConfig & {
+        entity_type?: EntityType;
         icon_color?: string;
         use_device_name?: boolean;
         show_other_device_entities?: boolean;
@@ -29,6 +31,7 @@ export const SensorCardConfigStruct = assign(
     lovelaceCardConfigStruct,
     entitySharedConfigStruct,
     object({
+        entity_type: optional(enums(ENTITY_TYPES)),
         icon_color: optional(string()),
         use_device_name: optional(boolean()),
         show_other_device_entities: optional(boolean()),

@@ -20,11 +20,24 @@ import {
 const SCHEMA: HaFormSchema[] = [
     { name: "entity", selector: { entity: { domain: SENSOR_CARD_DOMAINS } } },
     { name: "name", selector: { text: {} } },
-    { name: "icon_color", selector: { mush_color: {} } },
-    { name: "use_device_name", selector: { boolean: {} } },
-    { name: "show_other_device_entities", selector: { boolean: {} } },
-    { name: "show_power_status", selector: { boolean: {} } },
-    { name: "show_last_seen", selector: { boolean: {} } },
+    {
+        type: "grid",
+        name: "",
+        schema: [
+            { name: "entity_type", selector: { mush_entity_type: {} } },
+            { name: "icon_color", selector: { mush_color: {} } },
+        ],
+    },
+    {
+        type: "grid",
+        name: "",
+        schema: [
+            { name: "use_device_name", selector: { boolean: {} } },
+            { name: "show_other_device_entities", selector: { boolean: {} } },
+            { name: "show_power_status", selector: { boolean: {} } },
+            { name: "show_last_seen", selector: { boolean: {} } },
+        ],
+    },
 ];
 
 @customElement(SENSOR_CARD_EDITOR_NAME)
@@ -61,6 +74,9 @@ export class SensorCardEditor extends MushroomBaseElement implements LovelaceCar
 
         if (GENERIC_LABELS.includes(schema.name)) {
             return customLocalize(`editor.card.generic.${schema.name}`);
+        }
+        if (schema.name === "entity_type") {
+            return "Entity Type";
         }
         if (schema.name === "use_device_name") {
             return "Use Device Name?";

@@ -11,12 +11,12 @@ import {
     UNAVAILABLE,
     UNKNOWN,
 } from "../../../ha";
-import "../../../shared/badge-icon";
-import "../../../shared/card";
-import "../../../shared/shape-avatar";
-import "../../../shared/shape-icon";
-import "../../../shared/state-info";
-import "../../../shared/state-item";
+// import "../../../shared/badge-icon";
+// import "../../../shared/card";
+// import "../../../shared/shape-avatar";
+// import "../../../shared/shape-icon";
+// import "../../../shared/state-info";
+// import "../../../shared/state-item";
 import { EntityType, MushroomBaseDeviceCard } from "../../utils/base-device-card";
 import { computeRgbColor } from "../../../utils/colors";
 import { registerCustomCard } from "../../../utils/custom-cards";

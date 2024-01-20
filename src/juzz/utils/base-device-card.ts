@@ -1,6 +1,5 @@
 import { HassEntity } from "home-assistant-js-websocket";
 import { css, CSSResultGroup, TemplateResult, html, nothing } from "lit";
-import { styleMap } from "lit/directives/style-map.js";
 import { DeviceRegistryEntry, computeStateDisplay, fireEvent } from "../../ha";
 import "../shared/inline-state-item";
 import "../shared/row-container";

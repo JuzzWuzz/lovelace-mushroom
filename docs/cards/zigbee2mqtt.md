@@ -11,6 +11,8 @@ Designed for use with Zigbee2MQTT devices such as Contact, Climate, and Motion s
 
 This will also show the battery/power status and last seen time if available
 
+A settings button allows quick access to the device info page if the user is an Admin
+
 ## Configuration variables
 
 All the options are available in the lovelace editor but you can use `yaml` if you want.

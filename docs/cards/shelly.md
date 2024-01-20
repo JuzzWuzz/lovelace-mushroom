@@ -1,11 +1,15 @@
-# Shelly Update card
+# Shelly card
 
-![Shelly Update light](../images/shelly-update-light.png)
-![Shelly Update dark](../images/shelly-update-dark.png)
+![Shelly light](../images/shelly-light.png)
+![Shelly dark](../images/shelly-dark.png)
 
 ## Description
 
-A modified update card specialised for my Shelly devices. The card shows if an update is available along with a button to install it. Other buttons are available to trigger an announcement and show the device config screen. The controls can be set to only display to Admin users.
+A modified update card specialised for my Shelly devices. The card shows if an update is available and makes a button available to trigger the install
+
+Tapping on the main icon (even if offline), will trigger an announcement
+
+A settings button allows quick access to the device info page if the user is an Admin
 
 ## Configuration variables
 

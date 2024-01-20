@@ -3,19 +3,17 @@ import { entitySharedConfigStruct, EntitySharedConfig } from "../../../shared/co
 import { lovelaceCardConfigStruct } from "../../../shared/config/lovelace-card-config";
 import { LovelaceCardConfig } from "../../../ha";
 
-export const SHELLY_UPDATE_CARD_DEFAULT_USE_DEVICE_NAME = true;
-
-export type ShellyUpdateCardConfig = LovelaceCardConfig &
+export type ShellyCardConfig = LovelaceCardConfig &
     EntitySharedConfig & {
         use_device_name?: boolean;
     };
 
 // Enforce strict types for internal use
-export type ShellyUpdateCardConfigStrict = ShellyUpdateCardConfig & {
+export type ShellyCardConfigStrict = ShellyCardConfig & {
     use_device_name: boolean;
 };
 
-export const ShellyUpdateCardConfigStruct = assign(
+export const ShellyCardConfigStruct = assign(
     lovelaceCardConfigStruct,
     entitySharedConfigStruct,
     object({

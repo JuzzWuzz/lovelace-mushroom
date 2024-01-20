@@ -53,7 +53,6 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
         return {
             type: `custom:${ZIGBEE2MQTT_CARD_NAME}`,
             entity: updateEntities[0],
-            use_device_name: true,
         };
     }
 
@@ -89,7 +88,7 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
         const entityType = this._config.entity_type ?? this.computeEntityType(stateObj);
 
         // Parse the entity for some fields
-        const deviceOnline = ![UNAVAILABLE, UNKNOWN].includes(stateObj.state);
+        const deviceOffline = [UNAVAILABLE, UNKNOWN].includes(stateObj.state);
 
         // Get the related entities (To add in their values on the screen)
         let relatedEntities: HassEntity[] = this.getDeviceEntities(entityType);
@@ -122,7 +121,7 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
                         <mushroom-state-item ?rtl=${rtl}>
                             <mushroom-shape-icon
                                 slot="icon"
-                                .disabled=${!deviceOnline}
+                                .disabled=${deviceOffline}
                                 style=${styleMap(iconStyle)}
                             >
                                 <ha-state-icon .state=${stateObj}></ha-state-icon>
@@ -131,20 +130,20 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
                                 <mushroom-row-container .rowType=${"primary"}>
                                     <span>${name}</span>
                                     <div class="spacer"></div>
-                                    ${this.renderPowerState(deviceOnline, batteryEntity)}
+                                    ${this.renderPowerState(deviceOffline, batteryEntity)}
                                 </mushroom-row-container>
                                 <mushroom-row-container
                                     .rowType=${"secondary"}
                                     .tightSpacing=${true}
                                 >
                                     <span>
-                                        ${deviceOnline
-                                            ? this.getStateDisply(stateObj)
-                                            : "Device offline"}
+                                        ${deviceOffline
+                                            ? "Device offline"
+                                            : this.getStateDisply(stateObj)}
                                     </span>
                                     <div class="spacer"></div>
-                                    ${this.renderRelatedEntities(deviceOnline, relatedEntities)}
-                                    ${this.renderLastSeen(deviceOnline, lastSeenEntity?.state)}
+                                    ${this.renderRelatedEntities(deviceOffline, relatedEntities)}
+                                    ${this.renderLastSeen(deviceOffline, lastSeenEntity?.state)}
                                 </mushroom-row-container>
                             </div>
                         </mushroom-state-item>
@@ -182,10 +181,10 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
     }
 
     private renderPowerState(
-        deviceOnline: boolean,
+        deviceOffline: boolean,
         batteryEntity?: HassEntity
     ): TemplateResult | typeof nothing {
-        if (!this._config || !this._config.show_power_status || !deviceOnline) return nothing;
+        if (!this._config || !this._config.show_power_status || deviceOffline) return nothing;
 
         return html`
             ${batteryEntity
@@ -195,10 +194,10 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
     }
 
     private renderRelatedEntities(
-        deviceOnline: boolean,
+        deviceOffline: boolean,
         relatedEntities: HassEntity[]
     ): TemplateResult | typeof nothing {
-        if (!this._config || !this._config.show_other_device_entities || !deviceOnline)
+        if (!this._config || !this._config.show_other_device_entities || deviceOffline)
             return nothing;
 
         return html` ${relatedEntities.map(
@@ -211,10 +210,10 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
     }
 
     private renderLastSeen(
-        deviceOnline: boolean,
+        deviceOffline: boolean,
         lastSeen?: string
     ): TemplateResult | typeof nothing {
-        if (!this._config || !this._config.show_last_seen || (!deviceOnline && !lastSeen))
+        if (!this._config || !this._config.show_last_seen || (deviceOffline && !lastSeen))
             return nothing;
 
         return html`
@@ -226,9 +225,5 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
                 ></ha-relative-time>
             </mushroom-inline-state-item>
         `;
-    }
-
-    static get styles(): CSSResultGroup {
-        return [super.styles, css``];
     }
 }

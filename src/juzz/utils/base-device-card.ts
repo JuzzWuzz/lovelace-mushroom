@@ -29,6 +29,10 @@ export class MushroomBaseDeviceCard extends MushroomBaseCard {
         return (useDeviceName ? this.device?.name : null) ?? undefined;
     }
 
+    protected isAdmin(): boolean {
+        return this.hass.user?.is_admin === true;
+    }
+
     /**
      * Return the related device entities based on the type of entity
      */
@@ -117,7 +121,7 @@ export class MushroomBaseDeviceCard extends MushroomBaseCard {
                 return ["temperature", "humidity", "pm2_5", "motor_speed"];
             }
             case "climate": {
-                return ["temperature", "humidity", "pressure", "battery", "last_seen"];
+                return ["temperature", "humidity", "battery", "last_seen"];
             }
             case "contact": {
                 return ["battery", "last_seen"];
@@ -172,19 +176,18 @@ export class MushroomBaseDeviceCard extends MushroomBaseCard {
         });
     }
 
-    protected renderControls(rtl: boolean): TemplateResult | typeof nothing {
-        if (this.hass.user?.is_admin !== true) return nothing;
+    protected renderControls(
+        rtl: boolean,
+        additionalButtons?: TemplateResult
+    ): TemplateResult | typeof nothing {
+        if (!this.isAdmin()) return nothing;
 
-        const iconStyle = {
-            "--bg-color": "rgba(var(--rgb-disabled), 0.1)",
-            "--bg-color-disabled": "rgba(var(--rgb-disabled), 0.1)",
-        };
         return html`
             <mushroom-button-group ?rtl=${rtl} class="controls">
+                ${additionalButtons ? additionalButtons : nothing}
                 <mushroom-button
                     icon="mdi:cog-outline"
                     @click=${this.navigateToDeviceInfoPage}
-                    style=${styleMap(iconStyle)}
                 ></mushroom-button>
             </mushroom-button-group>
         `;
@@ -219,6 +222,8 @@ export class MushroomBaseDeviceCard extends MushroomBaseCard {
                 mushroom-button-group > mushroom-button {
                     flex: 0 1 auto;
                     width: calc(var(--control-height) * var(--control-button-ratio));
+                    --bg-color: rgba(var(--rgb-disabled), 0.1);
+                    --bg-color-disabled: rgba(var(--rgb-disabled), 0.1);
                 }
             `,
         ];

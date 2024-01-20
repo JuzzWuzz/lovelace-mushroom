@@ -7,12 +7,11 @@ import { MushroomBaseElement } from "../../../utils/base-element";
 import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
 import { loadHaComponents } from "../../../utils/loader";
-import { UPDATE_DOMAINS, SHELLY_UPDATE_CARD_EDITOR_NAME } from "./const";
+import { UPDATE_DOMAINS, SHELLY_CARD_EDITOR_NAME, SHELLY_CARD_DEFAULT_USE_DEVICE_NAME } from "./const";
 import {
-    SHELLY_UPDATE_CARD_DEFAULT_USE_DEVICE_NAME,
-    ShellyUpdateCardConfig,
-    ShellyUpdateCardConfigStruct,
-} from "./shelly-update-card-config";
+    ShellyCardConfig as ShellyCardConfig,
+    ShellyCardConfigStruct,
+} from "./shelly-card-config";
 
 const SCHEMA: HaFormSchema[] = [
     { name: "entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
@@ -20,22 +19,22 @@ const SCHEMA: HaFormSchema[] = [
     { name: "use_device_name", selector: { boolean: {} } },
 ];
 
-@customElement(SHELLY_UPDATE_CARD_EDITOR_NAME)
-export class ShellyUpdateCardEditor extends MushroomBaseElement implements LovelaceCardEditor {
-    @state() private _config?: ShellyUpdateCardConfig;
+@customElement(SHELLY_CARD_EDITOR_NAME)
+export class ShellyCardEditor extends MushroomBaseElement implements LovelaceCardEditor {
+    @state() private _config?: ShellyCardConfig;
 
     connectedCallback() {
         super.connectedCallback();
         void loadHaComponents();
     }
 
-    public setConfig(config: ShellyUpdateCardConfig): void {
-        assert(config, ShellyUpdateCardConfigStruct);
+    public setConfig(config: ShellyCardConfig): void {
+        assert(config, ShellyCardConfigStruct);
         this._config = config;
 
         // Handle setting boolean defaults
         if ((this._config.use_device_name ?? null) === null) {
-            this._config.use_device_name = SHELLY_UPDATE_CARD_DEFAULT_USE_DEVICE_NAME;
+            this._config.use_device_name = SHELLY_CARD_DEFAULT_USE_DEVICE_NAME;
         }
     }
 

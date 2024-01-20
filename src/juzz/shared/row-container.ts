@@ -35,6 +35,7 @@ export class RowContainer extends LitElement {
                 flex-direction: row;
                 flex-wrap: wrap;
                 align-items: center;
+                row-gap: var(--chip-spacing);
             }
             .primary {
                 font-weight: var(--card-primary-font-weight);

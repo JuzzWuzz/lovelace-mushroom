@@ -1,5 +1,5 @@
 import { HassEntity } from "home-assistant-js-websocket";
-import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
+import { html, nothing, TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { styleMap } from "lit/directives/style-map.js";
@@ -115,7 +115,7 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
         const rtl = computeRTL(this.hass);
 
         return html`
-            <ha-card class=${classMap({ "fill-container": false })}>
+            <ha-card>
                 <mushroom-card ?rtl=${rtl}>
                     <mushroom-row-container>
                         <mushroom-state-item ?rtl=${rtl}>

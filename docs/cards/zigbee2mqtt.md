@@ -19,7 +19,7 @@ All the options are available in the lovelace editor but you can use `yaml` if y
 
 | Name                         | Type       | Default  | Description                                                                                              |
 | :--------------------------- | :--------- | :------- | :------------------------------------------------------------------------------------------------------- |
-| `entity`                     | string     | Required | Update entity                                                                                            |
+| `entity`                     | string     | Required | The main entity                                                                                          |
 | `name`                       | string     | Optional | Custom name                                                                                              |
 | `entity_type`                | EntityType | Optional | By default the card attempts to auto-detect. This can be explicitly set as per an option below           |
 | `icon_color`                 | string     | `blue`   | Custom color for icon when entity is state is active                                                     |

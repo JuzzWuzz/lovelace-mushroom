@@ -17,6 +17,6 @@ All the options are available in the lovelace editor but you can use `yaml` if y
 
 | Name              | Type    | Default  | Description                                                                                              |
 | :---------------- | :------ | :------- | :------------------------------------------------------------------------------------------------------- |
-| `entity`          | string  | Required | Update entity                                                                                            |
+| `entity`          | string  | Required | Shelly update entity                                                                                     |
 | `name`            | string  | Optional | Custom name                                                                                              |
 | `use_device_name` | boolean | `true`   | Use the name of the device instead of the entity name. Specifying a custom name will ignore this setting |

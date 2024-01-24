@@ -84,6 +84,7 @@ Different cards are available for differents entities :
 -   🌡 [Climate card](docs/cards/climate.md)
 -   📑 [Select card](docs/cards/select.md)
 -   🔢 [Number card](docs/cards/number.md)
+-   🍃 [Air Purifier card](docs/cards/air-purifier.md)
 -   📊 [Bar card](docs/cards/bar.md)
 -   📦 [Shelly card](docs/cards/shelly.md)
 -   🪄 [Zigbee2MQTT card](docs/cards/zigbee2mqtt.md)

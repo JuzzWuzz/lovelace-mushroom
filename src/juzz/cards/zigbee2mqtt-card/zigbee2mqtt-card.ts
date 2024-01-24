@@ -1,7 +1,6 @@
 import { HassEntity } from "home-assistant-js-websocket";
 import { html, nothing, TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { classMap } from "lit/directives/class-map.js";
 import { styleMap } from "lit/directives/style-map.js";
 import {
     computeRTL,

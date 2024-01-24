@@ -16,13 +16,13 @@ import {
     UNAVAILABLE,
     UNKNOWN,
 } from "../../../ha";
-import "../../../shared/badge-icon";
-import "../../../shared/button";
-import "../../../shared/card";
-import "../../../shared/shape-avatar";
-import "../../../shared/shape-icon";
-import "../../../shared/state-info";
-import "../../../shared/state-item";
+// import "../../../shared/badge-icon";
+// import "../../../shared/button";
+// import "../../../shared/card";
+// import "../../../shared/shape-avatar";
+// import "../../../shared/shape-icon";
+// import "../../../shared/state-info";
+// import "../../../shared/state-item";
 import { MushroomBaseDeviceCard } from "../../utils/base-device-card";
 import { registerCustomCard } from "../../../utils/custom-cards";
 import { AIR_PURIFIER_CARD_EDITOR_NAME, AIR_PURIFIER_CARD_NAME, FAN_ENTITY_DOMAINS } from "./const";

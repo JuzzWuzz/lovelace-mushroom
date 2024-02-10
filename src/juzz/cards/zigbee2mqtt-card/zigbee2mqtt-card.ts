@@ -123,7 +123,10 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
                                 .disabled=${deviceOffline}
                                 style=${styleMap(iconStyle)}
                             >
-                                <ha-state-icon .stateObj=${stateObj}></ha-state-icon>
+                                <ha-state-icon
+                                    .hass=${this.hass}
+                                    .stateObj=${stateObj}
+                                ></ha-state-icon>
                             </mushroom-shape-icon>
                             <div slot="info">
                                 <mushroom-row-container .rowType=${"primary"}>

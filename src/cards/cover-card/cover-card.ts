@@ -1,4 +1,3 @@
-import { HassEntity } from "home-assistant-js-websocket";
 import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
@@ -217,7 +216,12 @@ export class CoverCard extends MushroomBaseCard implements LovelaceCard {
 
         return html`
             <mushroom-shape-icon slot="icon" .disabled=${!available} style=${styleMap(iconStyle)}>
-                <ha-state-icon .state=${stateObj} .icon=${icon}></ha-state-icon
+                <ha-state-icon
+                    .hass=${this.hass}
+                    .stateObj=${stateObj}
+                    .state=${stateObj}
+                    .icon=${icon}
+                ></ha-state-icon
             ></mushroom-shape-icon>
         `;
     }
@@ -226,14 +230,13 @@ export class CoverCard extends MushroomBaseCard implements LovelaceCard {
         if (!this._nextControl || this._nextControl == this._activeControl) return nothing;
 
         return html`
-            <mushroom-button
-                .icon=${CONTROLS_ICONS[this._nextControl]}
-                @click=${this._onNextControlTap}
-            />
+            <mushroom-button @click=${this._onNextControlTap}>
+                <ha-icon .icon=${CONTROLS_ICONS[this._nextControl]}></ha-icon>
+            </mushroom-button>
         `;
     }
 
-    private renderActiveControl(stateObj: HassEntity, layout?: Layout) {
+    private renderActiveControl(stateObj: CoverEntity, layout?: Layout) {
         switch (this._activeControl) {
             case "buttons_control":
                 return html`
@@ -241,7 +244,7 @@ export class CoverCard extends MushroomBaseCard implements LovelaceCard {
                         .hass=${this.hass}
                         .entity=${stateObj}
                         .fill=${layout !== "horizontal"}
-                    />
+                    ></mushroom-cover-buttons-control>
                 `;
             case "position_control": {
                 const color = getStateColor(stateObj as CoverEntity);
@@ -255,7 +258,7 @@ export class CoverCard extends MushroomBaseCard implements LovelaceCard {
                         .entity=${stateObj}
                         @current-change=${this.onCurrentPositionChange}
                         style=${styleMap(sliderStyle)}
-                    />
+                    ></mushroom-cover-position-control>
                 `;
             }
             case "tilt_position_control": {
@@ -269,7 +272,7 @@ export class CoverCard extends MushroomBaseCard implements LovelaceCard {
                         .hass=${this.hass}
                         .entity=${stateObj}
                         style=${styleMap(sliderStyle)}
-                    />
+                    ></mushroom-cover-tilt-position-control>
                 `;
             }
             default:

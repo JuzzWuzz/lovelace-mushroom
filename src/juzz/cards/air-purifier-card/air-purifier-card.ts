@@ -133,7 +133,11 @@ export class AirPurifierCard extends MushroomBaseDeviceCard implements LovelaceC
                                     hasDoubleClick: false,
                                 })}
                             >
-                                <ha-state-icon .state=${stateObj} .icon=${icon}></ha-state-icon>
+                                <ha-state-icon
+                                    .hass=${this.hass}
+                                    .stateObj=${stateObj}
+                                    .icon=${icon}
+                                ></ha-state-icon>
                             </mushroom-shape-icon>
                             <div slot="info">
                                 <mushroom-row-container .rowType=${"primary"}>
@@ -153,7 +157,7 @@ export class AirPurifierCard extends MushroomBaseDeviceCard implements LovelaceC
                     <mushroom-row-container .evenlyDistribute=${true}>
                         ${relatedEntities.map(
                             (e) => html`
-                                <mushroom-inline-state-item .state=${e}>
+                                <mushroom-inline-state-item .hass=${this.hass} .state=${e}>
                                     <span class="state">${this.getStateDisply(e)}</span>
                                 </mushroom-inline-state-item>
                             `

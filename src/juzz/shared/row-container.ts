@@ -42,18 +42,14 @@ export class RowContainer extends LitElement {
                 font-size: var(--card-primary-font-size);
                 line-height: var(--card-primary-line-height);
                 color: var(--primary-text-color);
-                --mdc-icon-size: calc(
-                    (var(--card-primary-font-size) * var(--card-primary-line-height))
-                );
+                --mdc-icon-size: var(--card-primary-line-height);
             }
             .secondary {
                 font-weight: var(--card-secondary-font-weight);
                 font-size: var(--card-secondary-font-size);
                 line-height: var(--card-secondary-line-height);
                 color: var(--secondary-text-color);
-                --mdc-icon-size: calc(
-                    var(--card-secondary-font-size) * var(--card-secondary-line-height)
-                );
+                --mdc-icon-size: var(--card-secondary-line-height);
             }
             .container.evenlyDistribute > ::slotted(*),
             .container > ::slotted(.spacer) {

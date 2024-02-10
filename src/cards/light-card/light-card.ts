@@ -245,7 +245,12 @@ export class LightCard extends MushroomBaseCard implements LovelaceCard {
         }
         return html`
             <mushroom-shape-icon slot="icon" .disabled=${!active} style=${styleMap(iconStyle)}>
-                <ha-state-icon .state=${stateObj} .icon=${icon}></ha-state-icon>
+                <ha-state-icon
+                    .hass=${this.hass}
+                    .stateObj=${stateObj}
+                    .state=${stateObj}
+                    .icon=${icon}
+                ></ha-state-icon>
             </mushroom-shape-icon>
         `;
     }
@@ -256,10 +261,9 @@ export class LightCard extends MushroomBaseCard implements LovelaceCard {
         return html`
             ${otherControls.map(
                 (ctrl) => html`
-                    <mushroom-button
-                        .icon=${CONTROLS_ICONS[ctrl]}
-                        @click=${(e) => this._onControlTap(ctrl, e)}
-                    />
+                    <mushroom-button @click=${(e) => this._onControlTap(ctrl, e)}>
+                        <ha-icon .icon=${CONTROLS_ICONS[ctrl]}></ha-icon>
+                    </mushroom-button>
                 `
             )}
         `;

@@ -184,10 +184,9 @@ export class MushroomBaseDeviceCard extends MushroomBaseCard {
         return html`
             <mushroom-button-group ?rtl=${rtl} class="controls">
                 ${additionalButtons ? additionalButtons : nothing}
-                <mushroom-button
-                    icon="mdi:cog-outline"
-                    @click=${this.navigateToDeviceInfoPage}
-                ></mushroom-button>
+                <mushroom-button @click=${this.navigateToDeviceInfoPage}>
+                    <ha-icon .icon=${"mdi:cog-outline"}></ha-icon>
+                </mushroom-button>
             </mushroom-button-group>
         `;
     }

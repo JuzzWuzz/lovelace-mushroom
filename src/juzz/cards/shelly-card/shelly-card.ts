@@ -173,11 +173,9 @@ export class ShellyUpdateCard extends MushroomBaseDeviceCard implements Lovelace
         return html`
             ${hasUpdate && !deviceOffline
                 ? html`
-                      <mushroom-button
-                          icon="mdi:cellphone-arrow-down"
-                          .disabled=${installing}
-                          @click=${this._handleInstall}
-                      ></mushroom-button>
+                      <mushroom-button .disabled=${installing} @click=${this._handleInstall}>
+                          <ha-icon .icon=${"mdi:cellphone-arrow-down"}></ha-icon>
+                      </mushroom-button>
                   `
                 : nothing}
         `;

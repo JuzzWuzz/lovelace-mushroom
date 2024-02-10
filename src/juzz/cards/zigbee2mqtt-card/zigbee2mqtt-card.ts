@@ -123,7 +123,7 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
                                 .disabled=${deviceOffline}
                                 style=${styleMap(iconStyle)}
                             >
-                                <ha-state-icon .state=${stateObj}></ha-state-icon>
+                                <ha-state-icon .stateObj=${stateObj}></ha-state-icon>
                             </mushroom-shape-icon>
                             <div slot="info">
                                 <mushroom-row-container .rowType=${"primary"}>
@@ -187,7 +187,10 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
 
         return html`
             ${batteryEntity
-                ? html` <ha-state-icon .state=${batteryEntity}></ha-state-icon>`
+                ? html` <ha-state-icon
+                      .hass=${this.hass}
+                      .stateObj=${batteryEntity}
+                  ></ha-state-icon>`
                 : html` <ha-icon icon="mdi:power-plug"></ha-icon> `}
         `;
     }
@@ -201,7 +204,7 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
 
         return html` ${relatedEntities.map(
             (e) => html`
-                <mushroom-inline-state-item .state=${e}>
+                <mushroom-inline-state-item .hass=${this.hass} .state=${e}>
                     <span>${this.getStateDisply(e)}</span>
                 </mushroom-inline-state-item>
             `
@@ -216,7 +219,7 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
             return nothing;
 
         return html`
-            <mushroom-inline-state-item>
+            <mushroom-inline-state-item .hass=${this.hass}>
                 <ha-relative-time
                     .hass=${this.hass}
                     .datetime=${lastSeen}

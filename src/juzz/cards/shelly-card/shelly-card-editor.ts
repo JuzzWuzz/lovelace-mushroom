@@ -7,11 +7,12 @@ import { MushroomBaseElement } from "../../../utils/base-element";
 import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
 import { loadHaComponents } from "../../../utils/loader";
-import { UPDATE_DOMAINS, SHELLY_CARD_EDITOR_NAME, SHELLY_CARD_DEFAULT_USE_DEVICE_NAME } from "./const";
 import {
-    ShellyCardConfig as ShellyCardConfig,
-    ShellyCardConfigStruct,
-} from "./shelly-card-config";
+    UPDATE_DOMAINS,
+    SHELLY_CARD_EDITOR_NAME,
+    SHELLY_CARD_DEFAULT_USE_DEVICE_NAME,
+} from "./const";
+import { ShellyCardConfig as ShellyCardConfig, ShellyCardConfigStruct } from "./shelly-card-config";
 
 const SCHEMA: HaFormSchema[] = [
     { name: "entity", selector: { entity: { domain: UPDATE_DOMAINS } } },

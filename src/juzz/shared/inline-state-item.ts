@@ -2,9 +2,12 @@ import { HassEntity } from "home-assistant-js-websocket";
 import { css, CSSResultGroup, html, LitElement, nothing, TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
+import { HomeAssistant } from "../../ha";
 
 @customElement("mushroom-inline-state-item")
 export class InlineStateItem extends LitElement {
+    @property({ attribute: false }) public hass!: HomeAssistant;
+
     @property({ attribute: false }) public state?: HassEntity;
 
     @property() public icon?: string;
@@ -27,7 +30,11 @@ export class InlineStateItem extends LitElement {
     protected renderIcon(): TemplateResult | typeof nothing {
         if (!this.showIcon || (!this.state && !this.icon)) return nothing;
 
-        return html` <ha-state-icon .state=${this.state} .icon=${this.icon}></ha-state-icon>`;
+        return html` <ha-state-icon
+            .hass=${this.hass}
+            .stateObj=${this.state}
+            .icon=${this.icon}
+        ></ha-state-icon>`;
     }
 
     static get styles(): CSSResultGroup {

@@ -5,17 +5,23 @@ import "../shared/inline-state-item";
 import "../shared/row-container";
 import { MushroomBaseCard } from "../../utils/base-card";
 import { cardStyle } from "../../utils/card-styles";
+import { EntitySharedConfig } from "../../shared/config/entity-config";
+import { AppearanceSharedConfig } from "../../shared/config/appearance-config";
+import "./controls/device-controls";
 
 export const ENTITY_TYPES = ["air_purifier", "climate", "contact", "light", "motion"] as const;
 export type EntityType = (typeof ENTITY_TYPES)[number];
 
-export class MushroomBaseDeviceCard extends MushroomBaseCard {
-    protected _entityId?: string;
+type BaseConfig = EntitySharedConfig & AppearanceSharedConfig;
 
+export class MushroomBaseDeviceCard<
+    T extends BaseConfig = BaseConfig,
+    E extends HassEntity = HassEntity,
+> extends MushroomBaseCard<T, E> {
     private _device?: DeviceRegistryEntry;
     get device(): DeviceRegistryEntry | undefined {
-        if (!this._device && this._entityId && this.hass) {
-            const deviceId = this.hass.entities[this._entityId]?.device_id;
+        if (!this._device && this.hass && this._config?.entity) {
+            const deviceId = this.hass.entities[this._config.entity]?.device_id;
             if (deviceId) {
                 this._device = this.hass.devices[deviceId];
             }
@@ -24,8 +30,17 @@ export class MushroomBaseDeviceCard extends MushroomBaseCard {
         return this._device;
     }
 
-    protected getDeviceName(useDeviceName: boolean): string | undefined {
-        return (useDeviceName ? this.device?.name : null) ?? undefined;
+    protected useDeviceNameDefault: boolean = false;
+    protected useDeviceName(): boolean {
+        if (this._config && "use_device_name" in this._config) {
+            return this._config.use_device_name === true;
+        } else {
+            return this.useDeviceNameDefault;
+        }
+    }
+
+    protected getDeviceName(): string | undefined {
+        return (this.useDeviceName() ? this.device?.name : null) ?? undefined;
     }
 
     protected isAdmin(): boolean {
@@ -40,7 +55,7 @@ export class MushroomBaseDeviceCard extends MushroomBaseCard {
         configRelatedEntitiesSuffixes?: string[]
     ): HassEntity[] {
         const deviceId = this.device?.id;
-        const entityId = this._entityId;
+        const entityId = this._config?.entity;
 
         if (!this.device || !entityId) return [];
 
@@ -158,47 +173,11 @@ export class MushroomBaseDeviceCard extends MushroomBaseCard {
         return undefined;
     }
 
-    /**
-     * Navigate Home Assistant to the Device Info page
-     */
-    protected navigateToDeviceInfoPage(): void {
-        if (!this.device) return;
-
-        fireEvent(this, "hass-action", {
-            config: {
-                tap_action: {
-                    action: "navigate",
-                    navigation_path: `/config/devices/device/${this.device.id}`,
-                },
-            },
-            action: "tap",
-        });
-    }
-
-    protected renderControls(
-        rtl: boolean,
-        additionalButtons?: TemplateResult
-    ): TemplateResult | typeof nothing {
-        if (!this.isAdmin()) return nothing;
-
-        return html`
-            <mushroom-button-group ?rtl=${rtl} class="controls">
-                ${additionalButtons ? additionalButtons : nothing}
-                <mushroom-button @click=${this.navigateToDeviceInfoPage}>
-                    <ha-icon .icon=${"mdi:cog-outline"}></ha-icon>
-                </mushroom-button>
-            </mushroom-button-group>
-        `;
-    }
-
     static get styles(): CSSResultGroup {
         return [
             super.styles,
             cardStyle,
             css`
-                mushroom-state-item {
-                    flex: 1 1 auto;
-                }
                 mushroom-shape-icon {
                     --icon-color: rgb(var(--rgb-state-entity));
                     --shape-color: rgba(var(--rgb-state-entity), 0.2);
@@ -212,16 +191,8 @@ export class MushroomBaseDeviceCard extends MushroomBaseCard {
                 mushroom-shape-icon.spin ha-state-icon {
                     animation: var(--animation-duration) infinite linear spin;
                 }
-                mushroom-button-group {
-                    flex: 0 1 auto;
-                    flex-basis: fit-content;
-                    min-width: auto;
-                }
-                mushroom-button-group > mushroom-button {
-                    flex: 0 1 auto;
-                    width: calc(var(--control-height) * var(--control-button-ratio));
-                    --bg-color: rgba(var(--rgb-disabled), 0.1);
-                    --bg-color-disabled: rgba(var(--rgb-disabled), 0.1);
+                mushroom-device-card-controls {
+                    flex: 1;
                 }
             `,
         ];

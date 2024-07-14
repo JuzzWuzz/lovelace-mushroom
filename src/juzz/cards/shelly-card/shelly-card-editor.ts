@@ -12,12 +12,23 @@ import {
     SHELLY_CARD_EDITOR_NAME,
     SHELLY_CARD_DEFAULT_USE_DEVICE_NAME,
 } from "./const";
-import { ShellyCardConfig as ShellyCardConfig, ShellyCardConfigStruct } from "./shelly-card-config";
+import {
+    ShellyCardConfig as ShellyCardConfig,
+    ShellyCardConfigStruct,
+    useDeviceName,
+} from "./shelly-card-config";
 
 const SCHEMA: HaFormSchema[] = [
     { name: "entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
     { name: "name", selector: { text: {} } },
-    { name: "use_device_name", selector: { boolean: {} } },
+    {
+        type: "grid",
+        name: "",
+        schema: [
+            { name: "layout", selector: { mush_layout: {} } },
+            { name: "use_device_name", selector: { boolean: {} } },
+        ],
+    },
 ];
 
 @customElement(SHELLY_CARD_EDITOR_NAME)
@@ -32,11 +43,6 @@ export class ShellyCardEditor extends MushroomBaseElement implements LovelaceCar
     public setConfig(config: ShellyCardConfig): void {
         assert(config, ShellyCardConfigStruct);
         this._config = config;
-
-        // Handle setting boolean defaults
-        if ((this._config.use_device_name ?? null) === null) {
-            this._config.use_device_name = SHELLY_CARD_DEFAULT_USE_DEVICE_NAME;
-        }
     }
 
     private _computeLabel = (schema: HaFormSchema) => {
@@ -56,7 +62,10 @@ export class ShellyCardEditor extends MushroomBaseElement implements LovelaceCar
             return nothing;
         }
 
-        const data = { ...this._config } as any;
+        const data: ShellyCardConfig = { ...this._config };
+
+        // Handle setting defaults
+        data.use_device_name = useDeviceName(data);
 
         return html`
             <ha-form
@@ -70,6 +79,11 @@ export class ShellyCardEditor extends MushroomBaseElement implements LovelaceCar
     }
 
     private _valueChanged(ev: CustomEvent): void {
-        fireEvent(this, "config-changed", { config: ev.detail.value });
+        // Delete default values
+        const newConfig = { ...ev.detail.value };
+        if (newConfig.use_device_name === SHELLY_CARD_DEFAULT_USE_DEVICE_NAME) {
+            delete newConfig.use_device_name;
+        }
+        fireEvent(this, "config-changed", { config: newConfig });
     }
 }

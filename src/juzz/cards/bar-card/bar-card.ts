@@ -1,6 +1,6 @@
 import { HassEntity } from "home-assistant-js-websocket";
 import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { styleMap } from "lit/directives/style-map.js";
 import {
@@ -24,15 +24,13 @@ import { MushroomBaseCard } from "../../../utils/base-card";
 import { cardStyle } from "../../../utils/card-styles";
 import { computeRgbColor } from "../../../utils/colors";
 import { registerCustomCard } from "../../../utils/custom-cards";
-import { BAR_CARD_EDITOR_NAME, BAR_CARD_NAME } from "./const";
 import {
-    BarCardConfig,
     BAR_CARD_DEFAULT_MAX,
     BAR_CARD_DEFAULT_MIN,
-    BAR_CARD_DEFAULT_SHOW_NAME,
-    BAR_CARD_DEFAULT_SHOW_STATE,
-    BAR_CARD_DEFAULT_SHOW_ICON,
-} from "./bar-card-config";
+    BAR_CARD_EDITOR_NAME,
+    BAR_CARD_NAME,
+} from "./const";
+import { BarCardConfig, getMax, getMin, showIcon, showName, showState } from "./bar-card-config";
 import { Appearance } from "../../../shared/config/appearance-config";
 
 registerCustomCard({
@@ -42,7 +40,7 @@ registerCustomCard({
 });
 
 @customElement(BAR_CARD_NAME)
-export class BarCard extends MushroomBaseCard implements LovelaceCard {
+export class BarCard extends MushroomBaseCard<BarCardConfig> implements LovelaceCard {
     public static async getConfigElement(): Promise<LovelaceCardEditor> {
         await import("./bar-card-editor");
         return document.createElement(BAR_CARD_EDITOR_NAME) as LovelaceCardEditor;
@@ -63,19 +61,13 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
         };
     }
 
-    @state() private _config?: BarCardConfig;
-
-    getCardSize(): number | Promise<number> {
-        return 1;
-    }
-
-    setConfig(config: BarCardConfig): void {
-        this._config = {
-            show_name: BAR_CARD_DEFAULT_SHOW_NAME,
-            show_state: BAR_CARD_DEFAULT_SHOW_STATE,
-            show_icon: BAR_CARD_DEFAULT_SHOW_ICON,
-            ...config,
-        };
+    protected get hasControls(): boolean {
+        if (!this._config) return false;
+        return (
+            Boolean(showIcon(this._config)) ||
+            Boolean(showName(this._config)) ||
+            Boolean(showState(this._config))
+        );
     }
 
     private computeSeverity(config: BarCardConfig, numberValue: number): string | undefined {
@@ -92,8 +84,7 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
             return nothing;
         }
 
-        const entityId = this._config.entity;
-        const stateObj = this.hass.states[entityId] as HassEntity | undefined;
+        const stateObj = this._stateObj;
 
         if (!stateObj) {
             return this.renderNotFound(this._config);
@@ -105,10 +96,9 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
         const appearance: Appearance = {
             layout: this._config.layout ?? "default",
             fill_container: this._config.fill_container ?? false,
-            primary_info: this._config.show_name ?? BAR_CARD_DEFAULT_SHOW_NAME ? "name" : "none",
-            secondary_info:
-                this._config.show_state ?? BAR_CARD_DEFAULT_SHOW_STATE ? "state" : "none",
-            icon_type: this._config.show_icon ?? BAR_CARD_DEFAULT_SHOW_ICON ? "icon" : "none",
+            primary_info: showName(this._config) ? "name" : "none",
+            secondary_info: showState(this._config) ? "state" : "none",
+            icon_type: showIcon(this._config) ? "icon" : "none",
         };
 
         const stateDisplay = this.hass.formatEntityState
@@ -140,16 +130,18 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
                         ${this.renderIcon(stateObj, icon)} ${this.renderBadge(stateObj)}
                         ${this.renderStateInfo(stateObj, appearance, name, stateDisplay)};
                     </mushroom-state-item>
-                    <mushroom-slider-ex
-                        .value=${entityState}
-                        .controllable=${false}
-                        .disabled=${!available}
-                        .inactive=${!isActive(stateObj)}
-                        .showActive=${true}
-                        .min=${this._config.min}
-                        .max=${this._config.max}
-                        style=${styleMap(sliderStyle)}
-                    ></mushroom-slider-ex>
+                    <div class="actions" ?rtl=${rtl}>
+                        <mushroom-slider-ex
+                            .value=${entityState}
+                            .controllable=${false}
+                            .disabled=${!available}
+                            .inactive=${!isActive(stateObj)}
+                            .showActive=${true}
+                            .min=${getMin(this._config)}
+                            .max=${getMax(this._config)}
+                            style=${styleMap(sliderStyle)}
+                        ></mushroom-slider-ex>
+                    </div>
                 </mushroom-card>
             </ha-card>
         `;
@@ -187,6 +179,7 @@ export class BarCard extends MushroomBaseCard implements LovelaceCard {
                 mushroom-slider-ex {
                     --main-color: rgb(var(--rgb-state-number));
                     --bg-color: rgba(var(--rgb-state-number), 0.2);
+                    flex: 1;
                 }
             `,
         ];

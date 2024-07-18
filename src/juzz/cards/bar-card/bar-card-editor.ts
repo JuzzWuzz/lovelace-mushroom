@@ -7,6 +7,7 @@ import { MushroomBaseElement } from "../../../utils/base-element";
 import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
 import { loadHaComponents } from "../../../utils/loader";
+import { SIMPLE_APPEARANCE_FORM_SCHEMA } from "../../shared/config/simple-layout-config";
 import {
     BAR_CARD_DEFAULT_MAX,
     BAR_CARD_DEFAULT_MIN,
@@ -36,14 +37,7 @@ const SCHEMA: HaFormSchema[] = [
             { name: "icon_color", selector: { mush_color: {} } },
         ],
     },
-    {
-        type: "grid",
-        name: "",
-        schema: [
-            { name: "layout", selector: { mush_layout: {} } },
-            { name: "fill_container", selector: { boolean: {} } },
-        ],
-    },
+    ...SIMPLE_APPEARANCE_FORM_SCHEMA,
     {
         type: "grid",
         name: "",

@@ -93,13 +93,6 @@ export class BarCard extends MushroomBaseCard<BarCardConfig> implements Lovelace
         const available = isAvailable(stateObj);
         const name = this._config.name || stateObj.attributes.friendly_name || "";
         const icon = this._config.icon;
-        const appearance: Appearance = {
-            layout: this._config.layout ?? "default",
-            fill_container: this._config.fill_container ?? false,
-            primary_info: showName(this._config) ? "name" : "none",
-            secondary_info: showState(this._config) ? "state" : "none",
-            icon_type: showIcon(this._config) ? "icon" : "none",
-        };
 
         const stateDisplay = this.hass.formatEntityState
             ? this.hass.formatEntityState(stateObj)
@@ -112,6 +105,13 @@ export class BarCard extends MushroomBaseCard<BarCardConfig> implements Lovelace
               );
 
         const rtl = computeRTL(this.hass);
+        const appearance: Appearance = {
+            layout: this._config.layout ?? "default",
+            fill_container: this._config.fill_container ?? false,
+            primary_info: showName(this._config) ? "name" : "none",
+            secondary_info: showState(this._config) ? "state" : "none",
+            icon_type: showIcon(this._config) ? "icon" : "none",
+        };
 
         const entityState = available ? Number(stateObj.state) : Number(0);
 

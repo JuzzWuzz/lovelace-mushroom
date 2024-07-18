@@ -10,7 +10,8 @@ export class DeviceCardControls extends LitElement {
 
     @property({ type: Boolean }) public fill: boolean = false;
 
-    @property({ attribute: false }) public additionalButtons?: TemplateResult;
+    @property({ attribute: false }) public additionalControls: TemplateResult | typeof nothing =
+        nothing;
 
     protected navigateToDeviceInfoPage(): void {
         if (!this.device) return;
@@ -31,7 +32,7 @@ export class DeviceCardControls extends LitElement {
 
         return html`
             <mushroom-button-group .fill=${this.fill} ?rtl=${rtl}>
-                ${this.additionalButtons}
+                ${this.additionalControls}
                 <mushroom-button @click=${this.navigateToDeviceInfoPage}>
                     <ha-icon .icon=${"mdi:cog-outline"}></ha-icon>
                 </mushroom-button>

@@ -7,29 +7,26 @@ import { MushroomBaseElement } from "../../../utils/base-element";
 import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
 import { loadHaComponents } from "../../../utils/loader";
+import { SIMPLE_APPEARANCE_FORM_SCHEMA } from "../../shared/config/simple-layout-config";
 import {
     UPDATE_DOMAINS,
     SHELLY_CARD_EDITOR_NAME,
     SHELLY_CARD_DEFAULT_USE_DEVICE_NAME,
+    SHELLY_CARD_DEFAULT_SHOW_DEVICE_CONTROLS,
 } from "./const";
 import {
     ShellyCardConfig as ShellyCardConfig,
     ShellyCardConfigStruct,
+    showDeviceControls,
     useDeviceName,
 } from "./shelly-card-config";
+import { BASE_DEVICE__FORM_SCHEMA } from "../../shared/config/base-device-config";
 
 const SCHEMA: HaFormSchema[] = [
     { name: "entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
     { name: "name", selector: { text: {} } },
-    {
-        type: "grid",
-        name: "",
-        schema: [
-            { name: "layout", selector: { mush_layout: {} } },
-            { name: "fill_container", selector: { boolean: {} } },
-        ],
-    },
-    { name: "use_device_name", selector: { boolean: {} } },
+    ...SIMPLE_APPEARANCE_FORM_SCHEMA,
+    ...BASE_DEVICE__FORM_SCHEMA,
 ];
 
 @customElement(SHELLY_CARD_EDITOR_NAME)
@@ -55,6 +52,9 @@ export class ShellyCardEditor extends MushroomBaseElement implements LovelaceCar
         if (schema.name === "use_device_name") {
             return "Use Device Name?";
         }
+        if (schema.name === "show_device_controls") {
+            return "Show Device Controls?";
+        }
         return this.hass!.localize(`ui.panel.lovelace.editor.card.generic.${schema.name}`);
     };
 
@@ -67,6 +67,7 @@ export class ShellyCardEditor extends MushroomBaseElement implements LovelaceCar
 
         // Handle setting defaults
         data.use_device_name = useDeviceName(data);
+        data.show_device_controls = showDeviceControls(data);
 
         return html`
             <ha-form
@@ -87,6 +88,9 @@ export class ShellyCardEditor extends MushroomBaseElement implements LovelaceCar
         }
         if (newConfig.use_device_name === SHELLY_CARD_DEFAULT_USE_DEVICE_NAME) {
             delete newConfig.use_device_name;
+        }
+        if (newConfig.show_device_controls === SHELLY_CARD_DEFAULT_SHOW_DEVICE_CONTROLS) {
+            delete newConfig.show_device_controls;
         }
         fireEvent(this, "config-changed", { config: newConfig });
     }

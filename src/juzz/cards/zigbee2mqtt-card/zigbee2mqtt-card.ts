@@ -30,6 +30,7 @@ import {
     showRelatedEntities,
     showPowerStatus,
     Zigbee2MQTTCardConfig,
+    showDeviceControls,
 } from "./zigbee2mqtt-card-config";
 import { classMap } from "lit/directives/class-map.js";
 import { Appearance } from "../../../shared/config/appearance-config";
@@ -144,10 +145,7 @@ export class Zigbee2MQTTCard
                     </div>
                 </mushroom-state-item>
                 ${this._config.layout === "horizontal"
-                    ? html`
-                          <mushroom-device-card-controls .hass=${this.hass} .device=${this.device}>
-                          </mushroom-device-card-controls>
-                      `
+                    ? this.renderDeviceControls()
                     : html`
                           <div class="actions">
                               <mushroom-row-container
@@ -158,11 +156,7 @@ export class Zigbee2MQTTCard
                               >
                                   ${this.renderRelatedEntities(deviceOffline, relatedEntities)}
                               </mushroom-row-container>
-                              <mushroom-device-card-controls
-                                  .hass=${this.hass}
-                                  .device=${this.device}
-                              >
-                              </mushroom-device-card-controls>
+                              ${this.renderDeviceControls()}
                           </div>
                       `}
             </mushroom-card>
@@ -199,7 +193,9 @@ export class Zigbee2MQTTCard
         deviceOffline: boolean,
         batteryEntity?: HassEntity
     ): TemplateResult | typeof nothing {
-        if (!this._config || !showPowerStatus(this._config) || deviceOffline) return nothing;
+        if (!this._config || !showPowerStatus(this._config) || deviceOffline) {
+            return nothing;
+        }
 
         return html`
             ${batteryEntity
@@ -215,7 +211,9 @@ export class Zigbee2MQTTCard
         deviceOffline: boolean,
         relatedEntities: HassEntity[]
     ): TemplateResult | typeof nothing {
-        if (!this._config || !showRelatedEntities(this._config) || deviceOffline) return nothing;
+        if (!this._config || !showRelatedEntities(this._config) || deviceOffline) {
+            return nothing;
+        }
 
         return html` ${relatedEntities.map(
             (e) => html`
@@ -230,8 +228,9 @@ export class Zigbee2MQTTCard
         deviceOffline: boolean,
         lastSeen?: string
     ): TemplateResult | typeof nothing {
-        if (!this._config || !showLastSeen(this._config) || (deviceOffline && !lastSeen))
+        if (!this._config || !showLastSeen(this._config) || (deviceOffline && !lastSeen)) {
             return nothing;
+        }
 
         return html`
             <mushroom-inline-state-item .hass=${this.hass}>
@@ -241,6 +240,17 @@ export class Zigbee2MQTTCard
                     capitalize
                 ></ha-relative-time>
             </mushroom-inline-state-item>
+        `;
+    }
+
+    private renderDeviceControls(): TemplateResult | typeof nothing {
+        if (!this._config || !showDeviceControls(this._config)) {
+            return nothing;
+        }
+
+        return html`
+            <mushroom-device-card-controls .hass=${this.hass} .device=${this.device}>
+            </mushroom-device-card-controls>
         `;
     }
 

@@ -122,6 +122,9 @@ export class BarCardEditor extends MushroomBaseElement implements LovelaceCardEd
     private _valueChanged(ev: CustomEvent): void {
         // Delete default values
         let newConfig = { ...ev.detail.value };
+        if (newConfig.fill_container === false) {
+            delete newConfig.fill_container;
+        }
         if (newConfig.show_icon === BAR_CARD_DEFAULT_SHOW_ICON) {
             delete newConfig.show_icon;
         }

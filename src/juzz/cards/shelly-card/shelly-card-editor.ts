@@ -26,9 +26,10 @@ const SCHEMA: HaFormSchema[] = [
         name: "",
         schema: [
             { name: "layout", selector: { mush_layout: {} } },
-            { name: "use_device_name", selector: { boolean: {} } },
+            { name: "fill_container", selector: { boolean: {} } },
         ],
     },
+    { name: "use_device_name", selector: { boolean: {} } },
 ];
 
 @customElement(SHELLY_CARD_EDITOR_NAME)
@@ -81,6 +82,9 @@ export class ShellyCardEditor extends MushroomBaseElement implements LovelaceCar
     private _valueChanged(ev: CustomEvent): void {
         // Delete default values
         const newConfig = { ...ev.detail.value };
+        if (newConfig.fill_container === false) {
+            delete newConfig.fill_container;
+        }
         if (newConfig.use_device_name === SHELLY_CARD_DEFAULT_USE_DEVICE_NAME) {
             delete newConfig.use_device_name;
         }

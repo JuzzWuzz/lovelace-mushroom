@@ -13,9 +13,11 @@ This card will additionally show device entities for the Temperature, Hunidity, 
 
 All the options are available in the lovelace editor but you can use `yaml` if you want.
 
-| Name             | Type    | Default  | Description                       |
-| :--------------- | :------ | :------- | :-------------------------------- |
-| `entity`         | string  | Required | Fan entity                        |
-| `name`           | string  | Optional | Custom name                       |
-| `icon`           | string  | Optional | Custom icon                       |
-| `icon_animation` | boolean | `false`  | Animate the icon when fan is `on` |
+| Name             | Type    | Default  | Description                                                                         |
+| :--------------- | :------ | :------- | :---------------------------------------------------------------------------------- |
+| `entity`         | string  | Required | Fan entity                                                                          |
+| `name`           | string  | Optional | Custom name                                                                         |
+| `icon`           | string  | Optional | Custom icon                                                                         |
+| `icon_animation` | boolean | `false`  | Animate the icon when fan is `on`                                                   |
+| `layout`         | string  | Optional | Layout of the card. Vertical, horizontal and default layout are supported           |
+| `fill_container` | boolean | `false`  | Fill container or not. Useful when card is in a grid, vertical or horizontal layout |

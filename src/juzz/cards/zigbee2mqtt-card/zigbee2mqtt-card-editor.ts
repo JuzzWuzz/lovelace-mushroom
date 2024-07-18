@@ -9,13 +9,20 @@ import { HaFormSchema } from "../../../utils/form/ha-form";
 import { loadHaComponents } from "../../../utils/loader";
 import {
     ZIGBEE2MQTT_CARD_DEFAULT_SHOW_LAST_SEEN,
-    ZIGBEE2MQTT_CARD_DEFAULT_SHOW_OTHER_DEVICE_ENTITIES,
+    ZIGBEE2MQTT_CARD_DEFAULT_SHOW_RELATED_ENTITIES,
     ZIGBEE2MQTT_CARD_DEFAULT_USE_DEVICE_NAME,
     ZIGBEE2MQTT_CARD_DOMAINS,
     ZIGBEE2MQTT_CARD_EDITOR_NAME,
-    ZIGBEE2MQTT_CARD_SHOW_POWER_STATUS,
+    ZIGBEE2MQTT_CARD_DEFAULT_SHOW_POWER_STATUS,
 } from "./const";
-import { Zigbee2MQTTCardConfig, Zigbee2MQTTCardConfigStruct } from "./zigbee2mqtt-card-config";
+import {
+    showLastSeen,
+    showPowerStatus,
+    showRelatedEntities,
+    useDeviceName,
+    Zigbee2MQTTCardConfig,
+    Zigbee2MQTTCardConfigStruct,
+} from "./zigbee2mqtt-card-config";
 
 const SCHEMA: HaFormSchema[] = [
     { name: "entity", selector: { entity: { domain: ZIGBEE2MQTT_CARD_DOMAINS } } },
@@ -32,8 +39,16 @@ const SCHEMA: HaFormSchema[] = [
         type: "grid",
         name: "",
         schema: [
+            { name: "layout", selector: { mush_layout: {} } },
+            { name: "fill_container", selector: { boolean: {} } },
+        ],
+    },
+    {
+        type: "grid",
+        name: "",
+        schema: [
             { name: "use_device_name", selector: { boolean: {} } },
-            { name: "show_other_device_entities", selector: { boolean: {} } },
+            { name: "show_related_entities", selector: { boolean: {} } },
             { name: "show_power_status", selector: { boolean: {} } },
             { name: "show_last_seen", selector: { boolean: {} } },
         ],
@@ -52,21 +67,6 @@ export class Zigbee2MQTTCardEditor extends MushroomBaseElement implements Lovela
     public setConfig(config: Zigbee2MQTTCardConfig): void {
         assert(config, Zigbee2MQTTCardConfigStruct);
         this._config = config;
-
-        // Handle setting boolean defaults
-        if ((this._config.use_device_name ?? null) === null) {
-            this._config.use_device_name = ZIGBEE2MQTT_CARD_DEFAULT_USE_DEVICE_NAME;
-        }
-        if ((this._config.show_other_device_entities ?? null) === null) {
-            this._config.show_other_device_entities =
-                ZIGBEE2MQTT_CARD_DEFAULT_SHOW_OTHER_DEVICE_ENTITIES;
-        }
-        if ((this._config.show_power_status ?? null) === null) {
-            this._config.show_power_status = ZIGBEE2MQTT_CARD_SHOW_POWER_STATUS;
-        }
-        if ((this._config.show_last_seen ?? null) === null) {
-            this._config.show_last_seen = ZIGBEE2MQTT_CARD_DEFAULT_SHOW_LAST_SEEN;
-        }
     }
 
     private _computeLabel = (schema: HaFormSchema) => {
@@ -81,7 +81,7 @@ export class Zigbee2MQTTCardEditor extends MushroomBaseElement implements Lovela
         if (schema.name === "use_device_name") {
             return "Use Device Name?";
         }
-        if (schema.name === "show_other_device_entities") {
+        if (schema.name === "show_related_entities") {
             return "Show Other Device Entities?";
         }
         if (schema.name === "show_power_status") {
@@ -98,7 +98,13 @@ export class Zigbee2MQTTCardEditor extends MushroomBaseElement implements Lovela
             return nothing;
         }
 
-        const data = { ...this._config } as any;
+        const data: Zigbee2MQTTCardConfig = { ...this._config };
+
+        // Handle setting defaults
+        data.use_device_name = useDeviceName(data);
+        data.show_related_entities = showRelatedEntities(data);
+        data.show_power_status = showPowerStatus(data);
+        data.show_last_seen = showLastSeen(data);
 
         return html`
             <ha-form
@@ -112,6 +118,23 @@ export class Zigbee2MQTTCardEditor extends MushroomBaseElement implements Lovela
     }
 
     private _valueChanged(ev: CustomEvent): void {
-        fireEvent(this, "config-changed", { config: ev.detail.value });
+        // Delete default values
+        const newConfig = { ...ev.detail.value };
+        if (newConfig.fill_container === false) {
+            delete newConfig.fill_container;
+        }
+        if (newConfig.use_device_name === ZIGBEE2MQTT_CARD_DEFAULT_USE_DEVICE_NAME) {
+            delete newConfig.use_device_name;
+        }
+        if (newConfig.show_related_entities === ZIGBEE2MQTT_CARD_DEFAULT_SHOW_RELATED_ENTITIES) {
+            delete newConfig.show_related_entities;
+        }
+        if (newConfig.show_power_status === ZIGBEE2MQTT_CARD_DEFAULT_SHOW_POWER_STATUS) {
+            delete newConfig.show_power_status;
+        }
+        if (newConfig.show_last_seen === ZIGBEE2MQTT_CARD_DEFAULT_SHOW_LAST_SEEN) {
+            delete newConfig.show_last_seen;
+        }
+        fireEvent(this, "config-changed", { config: newConfig });
     }
 }

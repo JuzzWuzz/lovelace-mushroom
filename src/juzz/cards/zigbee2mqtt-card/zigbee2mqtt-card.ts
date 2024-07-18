@@ -1,6 +1,6 @@
 import { HassEntity } from "home-assistant-js-websocket";
-import { html, nothing, TemplateResult } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { css, html, nothing, CSSResultGroup, TemplateResult } from "lit";
+import { customElement } from "lit/decorators.js";
 import { styleMap } from "lit/directives/style-map.js";
 import {
     computeRTL,
@@ -20,15 +20,19 @@ import { EntityType, MushroomBaseDeviceCard } from "../../utils/base-device-card
 import { computeRgbColor } from "../../../utils/colors";
 import { registerCustomCard } from "../../../utils/custom-cards";
 import {
-    ZIGBEE2MQTT_CARD_DEFAULT_SHOW_LAST_SEEN,
-    ZIGBEE2MQTT_CARD_DEFAULT_SHOW_OTHER_DEVICE_ENTITIES,
     ZIGBEE2MQTT_CARD_DEFAULT_USE_DEVICE_NAME,
     ZIGBEE2MQTT_CARD_DOMAINS,
     ZIGBEE2MQTT_CARD_EDITOR_NAME,
     ZIGBEE2MQTT_CARD_NAME,
-    ZIGBEE2MQTT_CARD_SHOW_POWER_STATUS,
 } from "./const";
-import { Zigbee2MQTTCardConfig, Zigbee2MQTTCardConfigStrict } from "./zigbee2mqtt-card-config";
+import {
+    showLastSeen,
+    showRelatedEntities,
+    showPowerStatus,
+    Zigbee2MQTTCardConfig,
+} from "./zigbee2mqtt-card-config";
+import { classMap } from "lit/directives/class-map.js";
+import { Appearance } from "../../../shared/config/appearance-config";
 
 registerCustomCard({
     type: ZIGBEE2MQTT_CARD_NAME,
@@ -38,7 +42,13 @@ registerCustomCard({
 });
 
 @customElement(ZIGBEE2MQTT_CARD_NAME)
-export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceCard {
+export class Zigbee2MQTTCard
+    extends MushroomBaseDeviceCard<Zigbee2MQTTCardConfig>
+    implements LovelaceCard
+{
+    // Override default value
+    protected useDeviceNameDefault: boolean = ZIGBEE2MQTT_CARD_DEFAULT_USE_DEVICE_NAME;
+
     public static async getConfigElement(): Promise<LovelaceCardEditor> {
         await import("./zigbee2mqtt-card-editor");
         return document.createElement(ZIGBEE2MQTT_CARD_EDITOR_NAME) as LovelaceCardEditor;
@@ -55,30 +65,17 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
         };
     }
 
-    @state() private _config?: Zigbee2MQTTCardConfigStrict;
-
-    getCardSize(): number | Promise<number> {
-        return 1;
-    }
-
-    setConfig(config: Zigbee2MQTTCardConfig): void {
-        this._config = {
-            use_device_name: ZIGBEE2MQTT_CARD_DEFAULT_USE_DEVICE_NAME,
-            show_other_device_entities: ZIGBEE2MQTT_CARD_DEFAULT_SHOW_OTHER_DEVICE_ENTITIES,
-            show_power_status: ZIGBEE2MQTT_CARD_SHOW_POWER_STATUS,
-            show_last_seen: ZIGBEE2MQTT_CARD_DEFAULT_SHOW_LAST_SEEN,
-            ...config,
-        };
-
-        this._entityId = this._config.entity;
+    protected get hasControls(): boolean {
+        return true;
     }
 
     protected render() {
-        if (!this._config || !this.hass || !this._entityId) {
+        if (!this._config || !this.hass || !this._config.entity) {
             return nothing;
         }
 
-        const stateObj = this.hass.states[this._entityId] as HassEntity | undefined;
+        const stateObj = this._stateObj;
+
         if (!stateObj) {
             return this.renderNotFound(this._config);
         }
@@ -98,10 +95,8 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
         );
 
         const name =
-            this._config.name ||
-            this.getDeviceName(this._config.use_device_name) ||
-            stateObj.attributes.friendly_name ||
-            "";
+            this._config.name || this.getDeviceName() || stateObj.attributes.friendly_name || "";
+        const stateDisplay = deviceOffline ? "Device offline" : this.getStateDisply(stateObj);
 
         const iconStyle = {};
         const iconColor = this.getIconColor(entityType, this._config.icon_color);
@@ -112,48 +107,66 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
         }
 
         const rtl = computeRTL(this.hass);
+        const appearance: Appearance = {
+            layout: this._config.layout ?? "default",
+            fill_container: this._config.fill_container ?? false,
+            primary_info: "name",
+            secondary_info: "state",
+            icon_type: "icon",
+        };
 
-        return html`
-            <ha-card>
-                <mushroom-card ?rtl=${rtl}>
-                    <mushroom-row-container>
-                        <mushroom-state-item ?rtl=${rtl}>
-                            <mushroom-shape-icon
-                                slot="icon"
-                                .disabled=${deviceOffline}
-                                style=${styleMap(iconStyle)}
-                            >
-                                <ha-state-icon
-                                    .hass=${this.hass}
-                                    .stateObj=${stateObj}
-                                ></ha-state-icon>
-                            </mushroom-shape-icon>
-                            <div slot="info">
-                                <mushroom-row-container .rowType=${"primary"}>
-                                    <span>${name}</span>
-                                    <div class="spacer"></div>
-                                    ${this.renderPowerState(deviceOffline, batteryEntity)}
-                                </mushroom-row-container>
-                                <mushroom-row-container
-                                    .rowType=${"secondary"}
-                                    .tightSpacing=${true}
-                                >
-                                    <span>
-                                        ${deviceOffline
-                                            ? "Device offline"
-                                            : this.getStateDisply(stateObj)}
-                                    </span>
-                                    <div class="spacer"></div>
-                                    ${this.renderRelatedEntities(deviceOffline, relatedEntities)}
-                                    ${this.renderLastSeen(deviceOffline, lastSeenEntity?.state)}
-                                </mushroom-row-container>
-                            </div>
-                        </mushroom-state-item>
-                        ${this.renderControls(rtl)}
-                    </mushroom-row-container>
-                </mushroom-card>
-            </ha-card>
-        `;
+        return html` <ha-card class=${classMap({ "fill-container": appearance.fill_container })}>
+            <mushroom-card .appearance=${appearance} ?rtl=${rtl}>
+                <mushroom-state-item .appearance=${appearance} ?rtl=${rtl}>
+                    <mushroom-shape-icon
+                        slot="icon"
+                        .disabled=${deviceOffline}
+                        style=${styleMap(iconStyle)}
+                    >
+                        <ha-state-icon .hass=${this.hass} .stateObj=${stateObj}></ha-state-icon>
+                    </mushroom-shape-icon>
+                    <div slot="info">
+                        <mushroom-row-container .rowType=${"primary"}>
+                            <span>${name}</span>
+                            <div class="spacer"></div>
+                            ${this.renderPowerState(deviceOffline, batteryEntity)}
+                        </mushroom-row-container>
+                        <mushroom-row-container .rowType=${"secondary"} .tightSpacing=${true}>
+                            <span>${stateDisplay}</span>
+                            <div class="spacer"></div>
+                            ${this._config.layout === "horizontal"
+                                ? html`
+                                      ${this.renderRelatedEntities(deviceOffline, relatedEntities)}
+                                  `
+                                : nothing}
+                            ${this.renderLastSeen(deviceOffline, lastSeenEntity?.state)}
+                        </mushroom-row-container>
+                    </div>
+                </mushroom-state-item>
+                ${this._config.layout === "horizontal"
+                    ? html`
+                          <mushroom-device-card-controls .hass=${this.hass} .device=${this.device}>
+                          </mushroom-device-card-controls>
+                      `
+                    : html`
+                          <div class="actions">
+                              <mushroom-row-container
+                                  .rowType=${"secondary"}
+                                  .alignment=${"justify"}
+                                  .noWrap=${false}
+                                  .tightSpacing=${true}
+                              >
+                                  ${this.renderRelatedEntities(deviceOffline, relatedEntities)}
+                              </mushroom-row-container>
+                              <mushroom-device-card-controls
+                                  .hass=${this.hass}
+                                  .device=${this.device}
+                              >
+                              </mushroom-device-card-controls>
+                          </div>
+                      `}
+            </mushroom-card>
+        </ha-card>`;
     }
 
     private getIconColor(entityType?: EntityType, configIconColor?: string) {
@@ -186,7 +199,7 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
         deviceOffline: boolean,
         batteryEntity?: HassEntity
     ): TemplateResult | typeof nothing {
-        if (!this._config || !this._config.show_power_status || deviceOffline) return nothing;
+        if (!this._config || !showPowerStatus(this._config) || deviceOffline) return nothing;
 
         return html`
             ${batteryEntity
@@ -202,8 +215,7 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
         deviceOffline: boolean,
         relatedEntities: HassEntity[]
     ): TemplateResult | typeof nothing {
-        if (!this._config || !this._config.show_other_device_entities || deviceOffline)
-            return nothing;
+        if (!this._config || !showRelatedEntities(this._config) || deviceOffline) return nothing;
 
         return html` ${relatedEntities.map(
             (e) => html`
@@ -218,7 +230,7 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
         deviceOffline: boolean,
         lastSeen?: string
     ): TemplateResult | typeof nothing {
-        if (!this._config || !this._config.show_last_seen || (deviceOffline && !lastSeen))
+        if (!this._config || !showLastSeen(this._config) || (deviceOffline && !lastSeen))
             return nothing;
 
         return html`
@@ -230,5 +242,27 @@ export class Zigbee2MQTTCard extends MushroomBaseDeviceCard implements LovelaceC
                 ></ha-relative-time>
             </mushroom-inline-state-item>
         `;
+    }
+
+    static get styles(): CSSResultGroup {
+        return [
+            super.styles,
+            css`
+                .state {
+                    font-weight: var(--card-secondary-font-weight);
+                    color: var(--secondary-text-color);
+                }
+                .actions > mushroom-row-container {
+                    align-items: center;
+                    flex-grow: 1;
+                }
+                mushroom-device-card-controls {
+                    flex-grow: 0;
+                    flex-shrink: 1;
+                    flex-basis: fit-content;
+                    min-width: auto;
+                }
+            `,
+        ];
     }
 }

@@ -144,10 +144,10 @@ export class Zigbee2MQTTCard
                         </mushroom-row-container>
                     </div>
                 </mushroom-state-item>
-                ${this._config.layout === "horizontal"
-                    ? this.renderDeviceControls()
-                    : html`
-                          <div class="actions">
+                <div class="actions">
+                    ${this._config.layout === "horizontal"
+                        ? this.renderDeviceControls()
+                        : html`
                               <mushroom-row-container
                                   .rowType=${"secondary"}
                                   .alignment=${"justify"}
@@ -157,8 +157,8 @@ export class Zigbee2MQTTCard
                                   ${this.renderRelatedEntities(deviceOffline, relatedEntities)}
                               </mushroom-row-container>
                               ${this.renderDeviceControls()}
-                          </div>
-                      `}
+                          `}
+                </div>
             </mushroom-card>
         </ha-card>`;
     }
@@ -265,12 +265,6 @@ export class Zigbee2MQTTCard
                 .actions > mushroom-row-container {
                     align-items: center;
                     flex-grow: 1;
-                }
-                mushroom-device-card-controls {
-                    flex-grow: 0;
-                    flex-shrink: 1;
-                    flex-basis: fit-content;
-                    min-width: auto;
                 }
             `,
         ];

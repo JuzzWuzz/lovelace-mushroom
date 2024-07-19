@@ -141,7 +141,7 @@ export class ShellyUpdateCard
                                 pulse: installing,
                             })}
                         >
-                            <ha-icon icon=${icon}></ha-icon>
+                            <ha-icon .icon=${icon}></ha-icon>
                         </mushroom-shape-icon>
                         <mushroom-state-info
                             slot="info"
@@ -169,13 +169,13 @@ export class ShellyUpdateCard
             <mushroom-device-card-controls
                 .hass=${this.hass}
                 .device=${this.device}
-                .additionalButtons=${!hasUpdate || deviceOffline
-                    ? nothing
-                    : html`
+                .additionalControls=${hasUpdate && !deviceOffline && this.isAdmin()
+                    ? html`
                           <mushroom-button .disabled=${installing} @click=${this._handleInstall}>
                               <ha-icon .icon=${"mdi:cellphone-arrow-down"}></ha-icon>
                           </mushroom-button>
-                      `}
+                      `
+                    : nothing}
             ></mushroom-device-card-controls>
         `;
     }
@@ -199,7 +199,7 @@ export class ShellyUpdateCard
     }
 
     private _handleInstall(): void {
-        if (!this.hass || !this._config?.entity) {
+        if (!this.hass || !this._config?.entity || !this.isAdmin()) {
             return;
         }
 

@@ -42,6 +42,9 @@ export class DeviceCardControls extends LitElement {
 
     static get styles(): CSSResultGroup {
         return css`
+            mushroom-button-group {
+                width: fit-content;
+            }
             mushroom-button-group > mushroom-button {
                 width: calc(var(--control-height) * var(--control-button-ratio));
                 --bg-color: rgba(var(--rgb-disabled), 0.1);

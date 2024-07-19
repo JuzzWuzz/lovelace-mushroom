@@ -191,8 +191,11 @@ export class MushroomBaseDeviceCard<
                 mushroom-shape-icon.spin ha-state-icon {
                     animation: var(--animation-duration) infinite linear spin;
                 }
-                mushroom-device-card-controls {
-                    flex: 1;
+                .actions {
+                    justify-content: flex-end;
+                    flex-grow: 0;
+                    flex-shrink: 1;
+                    flex-basis: fit-content;
                 }
             `,
         ];

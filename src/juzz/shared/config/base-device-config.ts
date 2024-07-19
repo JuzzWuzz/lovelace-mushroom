@@ -8,7 +8,7 @@ export const baseDeviceSharedConfigStruct = object({
 
 export type BaseDeviceSharedConfig = Infer<typeof baseDeviceSharedConfigStruct>;
 
-export const BASE_DEVICE__FORM_SCHEMA: HaFormSchema[] = [
+export const BASE_DEVICE_FORM_SCHEMA: HaFormSchema[] = [
     {
         type: "grid",
         name: "",

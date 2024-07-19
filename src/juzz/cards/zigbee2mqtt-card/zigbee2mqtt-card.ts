@@ -116,51 +116,56 @@ export class Zigbee2MQTTCard
             icon_type: "icon",
         };
 
-        return html` <ha-card class=${classMap({ "fill-container": appearance.fill_container })}>
-            <mushroom-card .appearance=${appearance} ?rtl=${rtl}>
-                <mushroom-state-item .appearance=${appearance} ?rtl=${rtl}>
-                    <mushroom-shape-icon
-                        slot="icon"
-                        .disabled=${deviceOffline}
-                        style=${styleMap(iconStyle)}
-                    >
-                        <ha-state-icon .hass=${this.hass} .stateObj=${stateObj}></ha-state-icon>
-                    </mushroom-shape-icon>
-                    <div slot="info">
-                        <mushroom-row-container .rowType=${"primary"}>
-                            <span>${name}</span>
-                            <div class="spacer"></div>
-                            ${this.renderPowerState(deviceOffline, batteryEntity)}
-                        </mushroom-row-container>
-                        <mushroom-row-container .rowType=${"secondary"} .tightSpacing=${true}>
-                            <span>${stateDisplay}</span>
-                            <div class="spacer"></div>
-                            ${this._config.layout === "horizontal"
-                                ? html`
+        return html`
+            <ha-card class=${classMap({ "fill-container": appearance.fill_container })}>
+                <mushroom-card .appearance=${appearance} ?rtl=${rtl}>
+                    <mushroom-state-item .appearance=${appearance} ?rtl=${rtl}>
+                        <mushroom-shape-icon
+                            slot="icon"
+                            .disabled=${deviceOffline}
+                            style=${styleMap(iconStyle)}
+                        >
+                            <ha-state-icon .hass=${this.hass} .stateObj=${stateObj}></ha-state-icon>
+                        </mushroom-shape-icon>
+                        <div slot="info">
+                            <mushroom-row-container .rowType=${"primary"}>
+                                <span>${name}</span>
+                                <div class="spacer"></div>
+                                ${this.renderPowerState(deviceOffline, batteryEntity)}
+                            </mushroom-row-container>
+                            <mushroom-row-container .rowType=${"secondary"} .tightSpacing=${true}>
+                                <span>${stateDisplay}</span>
+                                <div class="spacer"></div>
+                                ${this._config.layout === "horizontal"
+                                    ? html`
+                                          ${this.renderRelatedEntities(
+                                              deviceOffline,
+                                              relatedEntities
+                                          )}
+                                      `
+                                    : nothing}
+                                ${this.renderLastSeen(deviceOffline, lastSeenEntity?.state)}
+                            </mushroom-row-container>
+                        </div>
+                    </mushroom-state-item>
+                    <div class="actions">
+                        ${this._config.layout === "horizontal"
+                            ? this.renderDeviceControls()
+                            : html`
+                                  <mushroom-row-container
+                                      .rowType=${"secondary"}
+                                      .alignment=${"justify"}
+                                      .noWrap=${false}
+                                      .tightSpacing=${true}
+                                  >
                                       ${this.renderRelatedEntities(deviceOffline, relatedEntities)}
-                                  `
-                                : nothing}
-                            ${this.renderLastSeen(deviceOffline, lastSeenEntity?.state)}
-                        </mushroom-row-container>
+                                  </mushroom-row-container>
+                                  ${this.renderDeviceControls()}
+                              `}
                     </div>
-                </mushroom-state-item>
-                <div class="actions">
-                    ${this._config.layout === "horizontal"
-                        ? this.renderDeviceControls()
-                        : html`
-                              <mushroom-row-container
-                                  .rowType=${"secondary"}
-                                  .alignment=${"justify"}
-                                  .noWrap=${false}
-                                  .tightSpacing=${true}
-                              >
-                                  ${this.renderRelatedEntities(deviceOffline, relatedEntities)}
-                              </mushroom-row-container>
-                              ${this.renderDeviceControls()}
-                          `}
-                </div>
-            </mushroom-card>
-        </ha-card>`;
+                </mushroom-card>
+            </ha-card>
+        `;
     }
 
     private getIconColor(entityType?: EntityType, configIconColor?: string) {

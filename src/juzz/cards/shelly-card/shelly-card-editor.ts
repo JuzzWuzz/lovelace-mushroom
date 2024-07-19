@@ -7,6 +7,7 @@ import { MushroomBaseElement } from "../../../utils/base-element";
 import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
 import { loadHaComponents } from "../../../utils/loader";
+import { BASE_DEVICE_FORM_SCHEMA } from "../../shared/config/base-device-config";
 import { SIMPLE_APPEARANCE_FORM_SCHEMA } from "../../shared/config/simple-layout-config";
 import {
     UPDATE_DOMAINS,
@@ -20,13 +21,12 @@ import {
     showDeviceControls,
     useDeviceName,
 } from "./shelly-card-config";
-import { BASE_DEVICE__FORM_SCHEMA } from "../../shared/config/base-device-config";
 
 const SCHEMA: HaFormSchema[] = [
     { name: "entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
     { name: "name", selector: { text: {} } },
     ...SIMPLE_APPEARANCE_FORM_SCHEMA,
-    ...BASE_DEVICE__FORM_SCHEMA,
+    ...BASE_DEVICE_FORM_SCHEMA,
 ];
 
 @customElement(SHELLY_CARD_EDITOR_NAME)

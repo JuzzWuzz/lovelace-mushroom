@@ -7,7 +7,6 @@ import { MushroomBaseElement } from "../../../utils/base-element";
 import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
 import { loadHaComponents } from "../../../utils/loader";
-import { BASE_DEVICE_FORM_SCHEMA } from "../../shared/config/base-device-config";
 import { SIMPLE_APPEARANCE_FORM_SCHEMA } from "../../shared/config/simple-layout-config";
 import {
     AIR_PURIFIER_CARD_DEFAULT_SHOW_DEVICE_CONTROLS,

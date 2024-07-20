@@ -1,5 +1,5 @@
 import { HassEntity } from "home-assistant-js-websocket";
-import { css, html, nothing, CSSResultGroup, TemplateResult } from "lit";
+import { html, nothing, TemplateResult } from "lit";
 import { customElement } from "lit/decorators.js";
 import { styleMap } from "lit/directives/style-map.js";
 import {

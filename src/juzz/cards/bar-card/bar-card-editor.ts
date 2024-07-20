@@ -7,13 +7,23 @@ import { MushroomBaseElement } from "../../../utils/base-element";
 import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
 import { loadHaComponents } from "../../../utils/loader";
-import { BAR_CARD_EDITOR_NAME } from "./const";
+import { SIMPLE_APPEARANCE_FORM_SCHEMA } from "../../shared/config/simple-layout-config";
 import {
+    BAR_CARD_DEFAULT_MAX,
+    BAR_CARD_DEFAULT_MIN,
     BAR_CARD_DEFAULT_SHOW_ICON,
     BAR_CARD_DEFAULT_SHOW_NAME,
     BAR_CARD_DEFAULT_SHOW_STATE,
+    BAR_CARD_EDITOR_NAME,
+} from "./const";
+import {
     BarCardConfig,
     BarCardConfigStruct,
+    getMax,
+    getMin,
+    showIcon,
+    showName,
+    showState,
 } from "./bar-card-config";
 
 const SCHEMA: HaFormSchema[] = [
@@ -27,21 +37,14 @@ const SCHEMA: HaFormSchema[] = [
             { name: "icon_color", selector: { mush_color: {} } },
         ],
     },
+    ...SIMPLE_APPEARANCE_FORM_SCHEMA,
     {
         type: "grid",
         name: "",
         schema: [
-            { name: "layout", selector: { mush_layout: {} } },
-            { name: "fill_container", selector: { boolean: {} } },
-        ],
-    },
-    {
-        type: "grid",
-        name: "",
-        schema: [
+            { name: "show_icon", selector: { boolean: {} } },
             { name: "show_name", selector: { boolean: {} } },
             { name: "show_state", selector: { boolean: {} } },
-            { name: "show_icon", selector: { boolean: {} } },
         ],
     },
     {
@@ -90,14 +93,14 @@ export class BarCardEditor extends MushroomBaseElement implements LovelaceCardEd
             return nothing;
         }
 
-        const data: BarCardConfig = {
-            ...this._config,
-        };
+        const data: BarCardConfig = { ...this._config };
 
         // Handle setting defaults
-        data.show_name = data.show_name ?? BAR_CARD_DEFAULT_SHOW_NAME;
-        data.show_state = data.show_state ?? BAR_CARD_DEFAULT_SHOW_STATE;
-        data.show_icon = data.show_icon ?? BAR_CARD_DEFAULT_SHOW_ICON;
+        data.show_icon = showIcon(data);
+        data.show_name = showName(data);
+        data.show_state = showState(data);
+        data.min = getMin(data);
+        data.max = getMax(data);
 
         return html`
             <ha-form
@@ -111,6 +114,27 @@ export class BarCardEditor extends MushroomBaseElement implements LovelaceCardEd
     }
 
     private _valueChanged(ev: CustomEvent): void {
-        fireEvent(this, "config-changed", { config: ev.detail.value });
+        // Delete default values
+        let newConfig = { ...ev.detail.value };
+        if (newConfig.fill_container === false) {
+            delete newConfig.fill_container;
+        }
+        if (newConfig.show_icon === BAR_CARD_DEFAULT_SHOW_ICON) {
+            delete newConfig.show_icon;
+        }
+        if (newConfig.show_name === BAR_CARD_DEFAULT_SHOW_NAME) {
+            delete newConfig.show_name;
+        }
+        if (newConfig.show_state === BAR_CARD_DEFAULT_SHOW_STATE) {
+            delete newConfig.show_state;
+        }
+        // Add in required defaults
+        if (!newConfig.min) {
+            newConfig = { ...newConfig, min: BAR_CARD_DEFAULT_MIN };
+        }
+        if (!newConfig.max) {
+            newConfig = { ...newConfig, max: BAR_CARD_DEFAULT_MAX };
+        }
+        fireEvent(this, "config-changed", { config: newConfig });
     }
 }

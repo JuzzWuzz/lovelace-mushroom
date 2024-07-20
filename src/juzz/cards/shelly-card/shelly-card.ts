@@ -1,6 +1,5 @@
-import { HassEntity } from "home-assistant-js-websocket";
 import { html, nothing, TemplateResult } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { styleMap } from "lit/directives/style-map.js";
 import {
@@ -27,7 +26,8 @@ import {
     SHELLY_CARD_NAME,
     SHELLY_CARD_DEFAULT_USE_DEVICE_NAME,
 } from "./const";
-import { ShellyCardConfig, ShellyCardConfigStrict } from "./shelly-card-config";
+import { ShellyCardConfig, showDeviceControls } from "./shelly-card-config";
+import { Appearance } from "../../../shared/config/appearance-config";
 
 registerCustomCard({
     type: SHELLY_CARD_NAME,
@@ -37,7 +37,13 @@ registerCustomCard({
 });
 
 @customElement(SHELLY_CARD_NAME)
-export class ShellyUpdateCard extends MushroomBaseDeviceCard implements LovelaceCard {
+export class ShellyUpdateCard
+    extends MushroomBaseDeviceCard<ShellyCardConfig>
+    implements LovelaceCard
+{
+    // Override default value
+    protected useDeviceNameDefault: boolean = SHELLY_CARD_DEFAULT_USE_DEVICE_NAME;
+
     public static async getConfigElement(): Promise<LovelaceCardEditor> {
         await import("./shelly-card-editor");
         return document.createElement(SHELLY_CARD_EDITOR_NAME) as LovelaceCardEditor;
@@ -52,27 +58,16 @@ export class ShellyUpdateCard extends MushroomBaseDeviceCard implements Lovelace
         };
     }
 
-    @state() private _config?: ShellyCardConfigStrict;
-
-    getCardSize(): number | Promise<number> {
-        return 1;
-    }
-
-    setConfig(config: ShellyCardConfig): void {
-        this._config = {
-            use_device_name: SHELLY_CARD_DEFAULT_USE_DEVICE_NAME,
-            ...config,
-        };
-
-        this._entityId = this._config.entity;
+    protected get hasControls(): boolean {
+        return true;
     }
 
     protected render() {
-        if (!this._config || !this.hass || !this._entityId) {
+        if (!this._config || !this.hass || !this._config.entity) {
             return nothing;
         }
 
-        const stateObj = this.hass.states[this._entityId] as HassEntity | undefined;
+        const stateObj = this._stateObj;
 
         if (!stateObj) {
             return this.renderNotFound(this._config);
@@ -87,10 +82,7 @@ export class ShellyUpdateCard extends MushroomBaseDeviceCard implements Lovelace
         const installing = typeof installProgress === "number" || installProgress === true;
 
         const name =
-            this._config.name ||
-            this.getDeviceName(this._config.use_device_name) ||
-            stateObj.attributes.friendly_name ||
-            "";
+            this._config.name || this.getDeviceName() || stateObj.attributes.friendly_name || "";
 
         let icon = "mdi:cloud-off-outline";
         let iconColor = "disabled";
@@ -112,16 +104,12 @@ export class ShellyUpdateCard extends MushroomBaseDeviceCard implements Lovelace
                     .join(" → ");
 
                 iconColor = "var(--rgb-state-update-on)";
-                stateDisplay = ["Update available", versionMapping]
-                    .filter((s) => (s ?? null) !== null)
-                    .join(": ");
+                stateDisplay = versionMapping || "Update available";
             }
         } else if (!deviceOffline) {
             icon = "mdi:cloud-check-outline";
             iconColor = "var(--rgb-state-update-off)";
-            stateDisplay = ["Up to date", installedVersion]
-                .filter((s) => (s ?? null) !== null)
-                .join(": ");
+            stateDisplay = installedVersion || "Up to date";
         }
 
         const iconRgbColor = computeRgbColor(iconColor);
@@ -131,58 +119,69 @@ export class ShellyUpdateCard extends MushroomBaseDeviceCard implements Lovelace
         };
 
         const rtl = computeRTL(this.hass);
+        const appearance: Appearance = {
+            layout: this._config.layout ?? "default",
+            fill_container: this._config.fill_container ?? false,
+            primary_info: "name",
+            secondary_info: "state",
+            icon_type: "icon",
+        };
 
         return html`
-            <ha-card>
-                <mushroom-card ?rtl=${rtl}>
-                    <mushroom-row-container>
-                        <mushroom-state-item ?rtl=${rtl}>
-                            <mushroom-shape-icon
-                                slot="icon"
-                                .disabled=${deviceOffline}
-                                @click=${this._handleAnnounce}
-                                style=${styleMap(iconStyle)}
-                                class=${classMap({
-                                    action: this.isAdmin(),
-                                    pulse: installing,
-                                })}
-                            >
-                                <ha-icon icon=${icon}></ha-icon>
-                            </mushroom-shape-icon>
-                            <mushroom-state-info
-                                slot="info"
-                                .primary=${name}
-                                .secondary=${stateDisplay}
-                            ></mushroom-state-info>
-                        </mushroom-state-item>
-                        ${this.renderControls(
-                            rtl,
-                            this.renderExtraControls(deviceOffline, hasUpdate, installing)
-                        )}
-                    </mushroom-row-container>
+            <ha-card class=${classMap({ "fill-container": appearance.fill_container })}>
+                <mushroom-card .appearance=${appearance} ?rtl=${rtl}>
+                    <mushroom-state-item .appearance=${appearance} ?rtl=${rtl}>
+                        <mushroom-shape-icon
+                            slot="icon"
+                            .disabled=${deviceOffline}
+                            @click=${this._handleAnnounce}
+                            style=${styleMap(iconStyle)}
+                            class=${classMap({
+                                action: this.isAdmin(),
+                                pulse: installing,
+                            })}
+                        >
+                            <ha-icon .icon=${icon}></ha-icon>
+                        </mushroom-shape-icon>
+                        <mushroom-state-info
+                            slot="info"
+                            .primary=${name}
+                            .secondary=${stateDisplay}
+                        ></mushroom-state-info>
+                    </mushroom-state-item>
+                    <div class="actions" ?rtl=${rtl}>
+                        ${this.renderDeviceControls(deviceOffline, hasUpdate, installing)}
+                    </div>
                 </mushroom-card>
             </ha-card>
         `;
     }
-
-    protected renderExtraControls(
+    private renderDeviceControls(
         deviceOffline: boolean,
         hasUpdate: boolean,
         installing: boolean
-    ): TemplateResult {
+    ): TemplateResult | typeof nothing {
+        if (!this._config || !showDeviceControls(this._config)) {
+            return nothing;
+        }
+
         return html`
-            ${hasUpdate && !deviceOffline
-                ? html`
-                      <mushroom-button .disabled=${installing} @click=${this._handleInstall}>
-                          <ha-icon .icon=${"mdi:cellphone-arrow-down"}></ha-icon>
-                      </mushroom-button>
-                  `
-                : nothing}
+            <mushroom-device-card-controls
+                .hass=${this.hass}
+                .device=${this.device}
+                .additionalControls=${hasUpdate && !deviceOffline && this.isAdmin()
+                    ? (html`
+                          <mushroom-button .disabled=${installing} @click=${this._handleInstall}>
+                              <ha-icon .icon=${"mdi:cellphone-arrow-down"}></ha-icon>
+                          </mushroom-button>
+                      ` as TemplateResult)
+                    : nothing}
+            ></mushroom-device-card-controls>
         `;
     }
 
     private _handleAnnounce(): void {
-        if (!this._entityId || !this.hass || !this.isAdmin()) {
+        if (!this.hass || !this.isAdmin()) {
             return;
         }
 
@@ -200,12 +199,12 @@ export class ShellyUpdateCard extends MushroomBaseDeviceCard implements Lovelace
     }
 
     private _handleInstall(): void {
-        if (!this._entityId || !this.hass) {
+        if (!this.hass || !this._config?.entity || !this.isAdmin()) {
             return;
         }
 
         this.hass.callService("update", "install", {
-            entity_id: this._entityId,
+            entity_id: this._config.entity,
         });
     }
 }

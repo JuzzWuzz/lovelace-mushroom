@@ -137,12 +137,7 @@ export class Zigbee2MQTTCard
                                 <span>${stateDisplay}</span>
                                 <div class="spacer"></div>
                                 ${this._config.layout === "horizontal"
-                                    ? html`
-                                          ${this.renderRelatedEntities(
-                                              deviceOffline,
-                                              relatedEntities
-                                          )}
-                                      `
+                                    ? this.renderRelatedEntities(deviceOffline, relatedEntities)
                                     : nothing}
                                 ${this.renderLastSeen(deviceOffline, lastSeenEntity?.state)}
                             </mushroom-row-container>
@@ -202,14 +197,9 @@ export class Zigbee2MQTTCard
             return nothing;
         }
 
-        return html`
-            ${batteryEntity
-                ? html` <ha-state-icon
-                      .hass=${this.hass}
-                      .stateObj=${batteryEntity}
-                  ></ha-state-icon>`
-                : html` <ha-icon icon="mdi:power-plug"></ha-icon> `}
-        `;
+        return batteryEntity
+            ? html`<ha-state-icon .hass=${this.hass} .stateObj=${batteryEntity}></ha-state-icon>`
+            : html`<ha-icon icon="mdi:power-plug"></ha-icon>`;
     }
 
     private renderRelatedEntities(
@@ -220,13 +210,15 @@ export class Zigbee2MQTTCard
             return nothing;
         }
 
-        return html` ${relatedEntities.map(
-            (e) => html`
-                <mushroom-inline-state-item .hass=${this.hass} .state=${e}>
-                    <span>${this.getStateDisply(e)}</span>
-                </mushroom-inline-state-item>
-            `
-        )}`;
+        return html`
+            ${relatedEntities.map(
+                (e) => html`
+                    <mushroom-inline-state-item .hass=${this.hass} .state=${e}>
+                        <span>${this.getStateDisply(e)}</span>
+                    </mushroom-inline-state-item>
+                `
+            )}
+        `;
     }
 
     private renderLastSeen(
@@ -257,21 +249,5 @@ export class Zigbee2MQTTCard
             <mushroom-device-card-controls .hass=${this.hass} .device=${this.device}>
             </mushroom-device-card-controls>
         `;
-    }
-
-    static get styles(): CSSResultGroup {
-        return [
-            super.styles,
-            css`
-                .state {
-                    font-weight: var(--card-secondary-font-weight);
-                    color: var(--secondary-text-color);
-                }
-                .actions > mushroom-row-container {
-                    align-items: center;
-                    flex-grow: 1;
-                }
-            `,
-        ];
     }
 }

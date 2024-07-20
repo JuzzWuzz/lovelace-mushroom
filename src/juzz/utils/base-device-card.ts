@@ -132,7 +132,7 @@ export class MushroomBaseDeviceCard<
     private computeRelatedEntitySuffixes(entityType?: EntityType): string[] {
         switch (entityType) {
             case "air_purifier": {
-                return ["temperature", "humidity", "pm2_5", "motor_speed"];
+                return ["pm2_5", "motor_speed"];
             }
             case "climate": {
                 return ["temperature", "humidity", "battery", "last_seen"];
@@ -196,6 +196,10 @@ export class MushroomBaseDeviceCard<
                     flex-grow: 0;
                     flex-shrink: 1;
                     flex-basis: fit-content;
+                }
+                .actions > mushroom-row-container {
+                    align-items: center;
+                    flex-grow: 1;
                 }
             `,
         ];

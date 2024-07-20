@@ -170,11 +170,11 @@ export class ShellyUpdateCard
                 .hass=${this.hass}
                 .device=${this.device}
                 .additionalControls=${hasUpdate && !deviceOffline && this.isAdmin()
-                    ? html`
+                    ? (html`
                           <mushroom-button .disabled=${installing} @click=${this._handleInstall}>
                               <ha-icon .icon=${"mdi:cellphone-arrow-down"}></ha-icon>
                           </mushroom-button>
-                      `
+                      ` as TemplateResult)
                     : nothing}
             ></mushroom-device-card-controls>
         `;

@@ -39,9 +39,7 @@ export class EntityTypePicker extends LitElement {
                 <mwc-list-item value="auto"> Auto Detect </mwc-list-item>
                 ${(this.entityTypes ?? ENTITY_TYPES).map((info) => {
                     return html`
-                        <mwc-list-item .value=${info}>
-                            ${capitalizeFirstLetter(info)}
-                        </mwc-list-item>
+                        <mwc-list-item .value=${info}> ${capitalizeWords(info)} </mwc-list-item>
                     `;
                 })}
             </mushroom-select>
@@ -57,6 +55,9 @@ export class EntityTypePicker extends LitElement {
     }
 }
 
-function capitalizeFirstLetter(string: string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+function capitalizeWords(string: string) {
+    return string
+        .split("_")
+        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+        .join(" ");
 }

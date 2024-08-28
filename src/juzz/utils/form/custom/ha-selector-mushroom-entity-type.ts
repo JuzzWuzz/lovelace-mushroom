@@ -4,31 +4,31 @@ import { fireEvent, HomeAssistant } from "../../../../ha";
 import "../../../shared/editor/entity-type-picker";
 
 export type MushEntityTypeSelector = {
-    mush_entity_type: {};
+  mush_entity_type: {};
 };
 
 @customElement("ha-selector-mush_entity_type")
 export class HaMushEntityTypeSelector extends LitElement {
-    @property() public hass!: HomeAssistant;
+  @property() public hass!: HomeAssistant;
 
-    @property() public selector!: MushEntityTypeSelector;
+  @property() public selector!: MushEntityTypeSelector;
 
-    @property() public value?: string;
+  @property() public value?: string;
 
-    @property() public label?: string;
+  @property() public label?: string;
 
-    protected render() {
-        return html`
-            <mushroom-entity-type-picker
-                .hass=${this.hass}
-                .label=${this.label}
-                .value=${this.value}
-                @value-changed=${this._valueChanged}
-            ></mushroom-entity-type-picker>
-        `;
-    }
+  protected render() {
+    return html`
+      <mushroom-entity-type-picker
+        .hass=${this.hass}
+        .label=${this.label}
+        .value=${this.value}
+        @value-changed=${this._valueChanged}
+      ></mushroom-entity-type-picker>
+    `;
+  }
 
-    private _valueChanged(ev: CustomEvent) {
-        fireEvent(this, "value-changed", { value: ev.detail.value || undefined });
-    }
+  private _valueChanged(ev: CustomEvent) {
+    fireEvent(this, "value-changed", { value: ev.detail.value || undefined });
+  }
 }

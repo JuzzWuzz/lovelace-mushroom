@@ -1,58 +1,76 @@
 import { html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { assert } from "superstruct";
-import { LovelaceCardEditor, atLeastHaVersion, fireEvent } from "../../ha";
+import { LovelaceBadgeEditor, fireEvent } from "../../ha";
 import setupCustomlocalize from "../../localize";
 import { computeActionsFormSchema } from "../../shared/config/actions-config";
-import { APPEARANCE_FORM_SCHEMA } from "../../shared/config/appearance-config";
 import { MushroomBaseElement } from "../../utils/base-element";
 import { GENERIC_LABELS } from "../../utils/form/generic-fields";
 import { HaFormSchema } from "../../utils/form/ha-form";
-import { UiAction } from "../../utils/form/ha-selector";
 import { loadHaComponents } from "../../utils/loader";
-import { PERSON_CARD_EDITOR_NAME, PERSON_ENTITY_DOMAINS } from "./const";
-import { PersonCardConfig, personCardConfigStruct } from "./person-card-config";
-import memoizeOne from "memoize-one";
+import { TEMPLATE_BADGE_EDITOR_NAME } from "./const";
+import {
+  TemplateBadgeConfig,
+  templateBadgeConfigStruct,
+} from "./template-badge-config";
 
-const actions: UiAction[] = [
-  "more-info",
-  "navigate",
-  "url",
-  "perform-action",
-  "assist",
-  "none",
+export const TEMPLATE_LABELS = ["content", "label", "picture"];
+
+const SCHEMA: HaFormSchema[] = [
+  { name: "entity", selector: { entity: {} } },
+  {
+    name: "icon",
+    selector: { template: {} },
+  },
+  {
+    name: "color",
+    selector: { template: {} },
+  },
+  {
+    name: "label",
+    selector: { template: {} },
+  },
+  {
+    name: "content",
+    selector: { template: {} },
+  },
+  {
+    name: "picture",
+    selector: { template: {} },
+  },
+  ...computeActionsFormSchema(),
 ];
 
-const computeSchema = memoizeOne((useCallService: boolean): HaFormSchema[] => [
-  { name: "entity", selector: { entity: { domain: PERSON_ENTITY_DOMAINS } } },
-  { name: "name", selector: { text: {} } },
-  { name: "icon", selector: { icon: {} }, context: { icon_entity: "entity" } },
-  ...APPEARANCE_FORM_SCHEMA,
-  ...computeActionsFormSchema(actions, useCallService),
-]);
-
-@customElement(PERSON_CARD_EDITOR_NAME)
-export class SwitchCardEditor
+@customElement(TEMPLATE_BADGE_EDITOR_NAME)
+export class TemplateBadgeEditor
   extends MushroomBaseElement
-  implements LovelaceCardEditor
+  implements LovelaceBadgeEditor
 {
-  @state() private _config?: PersonCardConfig;
+  @state() private _config?: TemplateBadgeConfig;
 
   connectedCallback() {
     super.connectedCallback();
     void loadHaComponents();
   }
 
-  public setConfig(config: PersonCardConfig): void {
-    assert(config, personCardConfigStruct);
+  public setConfig(config: TemplateBadgeConfig): void {
+    assert(config, templateBadgeConfigStruct);
     this._config = config;
   }
 
   private _computeLabel = (schema: HaFormSchema) => {
     const customLocalize = setupCustomlocalize(this.hass!);
 
+    if (schema.name === "entity") {
+      return `${this.hass!.localize(
+        "ui.panel.lovelace.editor.card.generic.entity"
+      )} (${customLocalize("editor.card.template.entity_extra")})`;
+    }
     if (GENERIC_LABELS.includes(schema.name)) {
       return customLocalize(`editor.card.generic.${schema.name}`);
+    }
+    if (TEMPLATE_LABELS.includes(schema.name)) {
+      return customLocalize(`editor.card.template.${schema.name}`);
     }
     return this.hass!.localize(
       `ui.panel.lovelace.editor.card.generic.${schema.name}`
@@ -64,14 +82,11 @@ export class SwitchCardEditor
       return nothing;
     }
 
-    const useCallService = !atLeastHaVersion(this.hass.config.version, 2024, 8);
-    const schema = computeSchema(useCallService);
-
     return html`
       <ha-form
         .hass=${this.hass}
         .data=${this._config}
-        .schema=${schema}
+        .schema=${SCHEMA}
         .computeLabel=${this._computeLabel}
         @value-changed=${this._valueChanged}
       ></ha-form>

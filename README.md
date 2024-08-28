@@ -34,11 +34,17 @@ The goal of Mushroom is not to provide custom card for deep customization. You c
 
 Mushroom is available in [HACS][hacs] (Home Assistant Community Store).
 
+Use this link to directly go to the repository in HACS
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=piitaya&repository=lovelace-mushroom)
+
+_or_
+
 1. Install HACS if you don't have it already
 2. Open HACS in Home Assistant
-3. Go to "Frontend" section
-4. Click button with "+" icon
-5. Search for "Mushroom"
+3. Search for "Mushroom"
+4. Click the download button. ⬇️
+
 
 ### Manual
 
@@ -68,27 +74,31 @@ All the Mushroom cards can be configured using Dashboard UI editor.
 Different cards are available for differents entities :
 
 -   🚨 [Alarm card](docs/cards/alarm-control-panel.md)
+-   🔔 [Chips card](docs/cards/chips.md)
+-   🌡 [Climate card](docs/cards/climate.md)
 -   🪟 [Cover card](docs/cards/cover.md)
 -   🪄 [Entity card](docs/cards/entity.md)
 -   💨 [Fan card](docs/cards/fan.md)
+-   💧 [Humidifier card](docs/cards/humidifier.md)
 -   💡 [Light card](docs/cards/light.md)
+-   🔒 [Lock card](docs/cards/lock.md)
+-   📺 [Media card](docs/cards/media-player.md)
+-   🔢 [Number card](docs/cards/number.md)
 -   🙋 [Person card](docs/cards/person.md)
+-   📑 [Select card](docs/cards/select.md)
 -   🛠 [Template card](docs/cards/template.md)
--   🔔 [Chips card](docs/cards/chips.md)
 -   ✏️ [Title card](docs/cards/title.md)
 -   📦 [Update card](docs/cards/update.md)
 -   🧹 [Vacuum card](docs/cards/vacuum.md)
--   📺 [Media card](docs/cards/media-player.md)
--   🔒 [Lock card](docs/cards/lock.md)
--   💧 [Humidifier card](docs/cards/humidifier.md)
--   🌡 [Climate card](docs/cards/climate.md)
--   📑 [Select card](docs/cards/select.md)
--   🔢 [Number card](docs/cards/number.md)
 -   🍃 [Air Purifier card](docs/cards/air-purifier.md)
 -   📊 [Bar card](docs/cards/bar.md)
 -   📦 [Shelly card](docs/cards/shelly.md)
 -   🪄 [Zigbee2MQTT card](docs/cards/zigbee2mqtt.md)
 
+### Badges
+
+A [template badge](docs/badges/template.md) is available if you're using at least Home Assistant 2024.8.
+  
 ### Theme customization
 
 Mushroom works without theme but you can add a theme for better experience by installing the [Mushroom Themes](https://github.com/piitaya/lovelace-mushroom-themes). If you want more information about themes, check out the official [Home Assistant documentation about themes][home-assitant-theme-docs].
@@ -144,8 +154,9 @@ npm run build
 ### I don't see the last changes
 
 1. Check that your Home Assistant version is the latest. Some new Mushroom features can only be visible for the latest Home Assistant version.
-2. Check that you have the latest Mushroom version
-3. Clear your cache :
+2. Check that you have the latest Mushroom version on HACS
+3. Check that you have the latest Mushroom version by checking the browser console
+4. Clear your cache :
     - delete mushroom resources (https://my.home-assistant.io/redirect/lovelace_resources/)
     - uninstall Mushroom from HACS
     - reinstall Mushroom from HACS

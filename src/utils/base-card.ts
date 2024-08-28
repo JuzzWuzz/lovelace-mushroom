@@ -85,21 +85,67 @@ export class MushroomBaseCard<
   }
 
   public getLayoutOptions(): LovelaceLayoutOptions {
+    if (!this._config) {
+      return {
+        grid_columns: 2,
+        grid_rows: 1,
+      };
+    }
+
     const options = {
       grid_columns: 2,
-      grid_rows: 1,
+      grid_rows: 0,
     };
-    if (!this._config) return options;
+
     const appearance = computeAppearance(this._config);
+
+    const collapsible_controls =
+      "collapsible_controls" in this._config &&
+      Boolean(this._config.collapsible_controls);
+
+    const hasInfo =
+      appearance.primary_info !== "none" ||
+      appearance.secondary_info !== "none";
+    const hasIcon = appearance.icon_type !== "none";
+    const active = this._stateObj && isActive(this._stateObj);
+
+    const hasControls = this.hasControls && (!collapsible_controls || active);
+
     if (appearance.layout === "vertical") {
-      options.grid_rows += 1;
+      if (hasIcon) {
+        options.grid_rows += 1;
+      }
+      if (hasInfo) {
+        options.grid_rows += 1;
+      }
+      if (hasControls) {
+        options.grid_rows += 1;
+      }
     }
+
     if (appearance.layout === "horizontal") {
+      options.grid_rows = 1;
       options.grid_columns = 4;
     }
-    if (appearance?.layout !== "horizontal" && this.hasControls) {
-      options.grid_rows += 1;
+
+    if (appearance.layout === "default") {
+      if (hasInfo || hasIcon) {
+        options.grid_rows += 1;
+      }
+      if (hasControls) {
+        options.grid_rows += 1;
+      }
     }
+
+    // If icon only, set 1x1 for size
+    if (!hasControls && !hasInfo) {
+      options.grid_columns = 1;
+      options.grid_rows = 1;
+    }
+
+    // Ensure card has at least 1 row
+    options.grid_rows = Math.max(options.grid_rows, 1);
+
     return options;
   }
 

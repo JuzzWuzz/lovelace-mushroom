@@ -92,6 +92,7 @@ export class ShellyUpdateCard
       return this.renderNotFound(this._config);
     }
 
+    // Process the BETA entity
     const betaEntityId = this._config.beta_entity;
     const betaStateObj = betaEntityId
       ? this.hass.states[betaEntityId]
@@ -101,11 +102,17 @@ export class ShellyUpdateCard
     const deviceOffline = [UNAVAILABLE, UNKNOWN].includes(stateObj.state);
 
     // Parse the entity for some fields
+    const installedVersion = stateObj.attributes?.installed_version;
+    const betaVersion =
+      [betaStateObj?.attributes?.latest_versiona]
+        .filter((s) => (s ?? null) !== null)
+        .map((v) => `${v} (β)`)
+        .join("") || "Latest BETA";
+    const stableVersion =
+      stateObj.attributes?.latest_versiona || "Latest stable";
     const hasBetaUpdate = betaStateObj?.state === ON;
     const hasStableUpdate = stateObj.state === ON;
     const hasUpdate = hasBetaUpdate || hasStableUpdate;
-    const installedVersion = stateObj.attributes?.installed_version;
-    const latestVersion = stateObj.attributes?.latest_version;
     const installProgress = stateObj.attributes?.in_progress;
     const installing =
       typeof installProgress === "number" || installProgress === true;
@@ -123,22 +130,23 @@ export class ShellyUpdateCard
     let stateDisplay = "Device offline";
     if (hasUpdate) {
       icon = "mdi:cloud-download-outline";
-
       if (installing) {
         iconColor = "var(--rgb-state-update-installing)";
-
         if (typeof installProgress === "number") {
           stateDisplay = `Installing ${installProgress}%`;
         } else {
           stateDisplay = "Installing";
         }
       } else {
-        const versionMapping = [installedVersion, latestVersion]
-          .filter((s) => (s ?? null) !== null)
-          .join(" → ");
-
         iconColor = "var(--rgb-state-update-on)";
-        stateDisplay = versionMapping || "Update available";
+        const prefix = installedVersion ? `${installedVersion} ➔` : "Update:";
+        if (hasBetaUpdate && hasStableUpdate) {
+          stateDisplay = `${prefix} ${stableVersion} or ${betaVersion}`;
+        } else if (hasBetaUpdate) {
+          stateDisplay = `${prefix} ${betaVersion}`;
+        } else if (hasStableUpdate) {
+          stateDisplay = `${prefix} ${stableVersion}`;
+        }
       }
     } else if (!deviceOffline) {
       icon = "mdi:cloud-check-outline";
@@ -159,13 +167,13 @@ export class ShellyUpdateCard
     };
     if (hasStableUpdate) {
       updateConfig["stable"] = {
-        version: latestVersion,
+        version: stableVersion,
         entityId: stateObj.entity_id,
       };
     }
     if (hasBetaUpdate) {
       updateConfig["beta"] = {
-        version: betaStateObj.attributes?.latest_version,
+        version: betaVersion,
         entityId: betaStateObj.entity_id,
       };
     }

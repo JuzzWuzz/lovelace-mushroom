@@ -58,7 +58,7 @@ export class DeviceCardControls extends LitElement {
         ? html`
             <mushroom-button
               .disabled=${this.updateConfig.installing}
-              .title=${`BETA v${this.updateConfig.beta.version}`}
+              .title=${this.updateConfig.beta.version}
               @click=${this._handleInstallBeta}
               ><ha-icon .icon=${"mdi:beta"}></ha-icon>
             </mushroom-button>
@@ -68,7 +68,7 @@ export class DeviceCardControls extends LitElement {
         ? html`
             <mushroom-button
               .disabled=${this.updateConfig.installing}
-              .title=${`Stable v${this.updateConfig.stable.version}`}
+              .title=${this.updateConfig.stable.version}
               @click=${this._handleInstallStable}
               ><ha-icon .icon=${"mdi:cellphone-arrow-down"}></ha-icon>
             </mushroom-button>

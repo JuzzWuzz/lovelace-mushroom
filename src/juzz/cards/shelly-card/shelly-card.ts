@@ -28,6 +28,7 @@ import {
   SHELLY_CARD_DEFAULT_USE_DEVICE_NAME,
 } from "./const";
 import { ShellyCardConfig, showDeviceControls } from "./shelly-card-config";
+import { UpdateConfig } from "../../utils/controls/device-controls";
 
 registerCustomCard({
   type: SHELLY_CARD_NAME,
@@ -91,9 +92,18 @@ export class ShellyUpdateCard
       return this.renderNotFound(this._config);
     }
 
+    const betaEntityId = this._config.beta_entity;
+    const betaStateObj = betaEntityId
+      ? this.hass.states[betaEntityId]
+      : undefined;
+
     // Process availability
     const deviceOffline = [UNAVAILABLE, UNKNOWN].includes(stateObj.state);
-    const hasUpdate = stateObj.state === ON;
+
+    // Parse the entity for some fields
+    const hasBetaUpdate = betaStateObj?.state === ON;
+    const hasStableUpdate = stateObj.state === ON;
+    const hasUpdate = hasBetaUpdate || hasStableUpdate;
     const installedVersion = stateObj.attributes?.installed_version;
     const latestVersion = stateObj.attributes?.latest_version;
     const installProgress = stateObj.attributes?.in_progress;
@@ -141,7 +151,25 @@ export class ShellyUpdateCard
       "--shape-color": `rgba(${iconRgbColor}, 0.2)`,
     };
 
+    // Process the update config
+    const updateConfig: UpdateConfig = {
+      showButtons: hasUpdate && !deviceOffline && this.isAdmin(),
+      canInstall: this.isAdmin(),
+      installing: installing,
     };
+    if (hasStableUpdate) {
+      updateConfig["stable"] = {
+        version: latestVersion,
+        entityId: stateObj.entity_id,
+      };
+    }
+    if (hasBetaUpdate) {
+      updateConfig["beta"] = {
+        version: betaStateObj.attributes?.latest_version,
+        entityId: betaStateObj.entity_id,
+      };
+    }
+
     const rtl = computeRTL(this.hass);
     const appearance = computeAppearance(this._config);
 
@@ -170,16 +198,14 @@ export class ShellyUpdateCard
             ></mushroom-state-info>
           </mushroom-state-item>
           <div class="actions" ?rtl=${rtl}>
-            ${this.renderDeviceControls(deviceOffline, hasUpdate, installing)}
+            ${this.renderDeviceControls(updateConfig)}
           </div>
         </mushroom-card>
       </ha-card>
     `;
   }
   private renderDeviceControls(
-    deviceOffline: boolean,
-    hasUpdate: boolean,
-    installing: boolean
+    updateConfig: UpdateConfig
   ): TemplateResult | typeof nothing {
     if (!this._config || !showDeviceControls(this._config)) {
       return nothing;
@@ -189,17 +215,9 @@ export class ShellyUpdateCard
       <mushroom-device-card-controls
         .hass=${this.hass}
         .device=${this.device}
-        .additionalControls=${hasUpdate && !deviceOffline && this.isAdmin()
-          ? (html`
-              <mushroom-button
-                .disabled=${installing}
-                @click=${this._handleInstall}
-              >
-                <ha-icon .icon=${"mdi:cellphone-arrow-down"}></ha-icon>
-              </mushroom-button>
-            ` as TemplateResult)
-          : nothing}
-      ></mushroom-device-card-controls>
+        .updateConfig=${updateConfig}
+      >
+      </mushroom-device-card-controls>
     `;
   }
 
@@ -219,15 +237,5 @@ export class ShellyUpdateCard
         payload: "announce",
       });
     }
-  }
-
-  private _handleInstall(): void {
-    if (!this.hass || !this._config?.entity || !this.isAdmin()) {
-      return;
-    }
-
-    this.hass.callService("update", "install", {
-      entity_id: this._config.entity,
-    });
   }
 }

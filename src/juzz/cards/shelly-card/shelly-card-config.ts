@@ -1,4 +1,4 @@
-import { assign } from "superstruct";
+import { assign, object, optional, string } from "superstruct";
 import { LovelaceCardConfig } from "../../../ha";
 import {
   entitySharedConfigStruct,
@@ -21,13 +21,18 @@ import {
 export type ShellyCardConfig = LovelaceCardConfig &
   EntitySharedConfig &
   SimpleAppearanceSharedConfig &
-  BaseDeviceSharedConfig;
+  BaseDeviceSharedConfig & {
+    beta_entity?: string;
+  };
 
 export const ShellyCardConfigStruct = assign(
   lovelaceCardConfigStruct,
   entitySharedConfigStruct,
   simpleAppearanceSharedConfigStruct,
-  baseDeviceSharedConfigStruct
+  baseDeviceSharedConfigStruct,
+  object({
+    beta_entity: optional(string()),
+  })
 );
 
 export const useDeviceName = (config: ShellyCardConfig): boolean => {

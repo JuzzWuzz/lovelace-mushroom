@@ -8,7 +8,6 @@ import {
   HomeAssistant,
   LovelaceCard,
   LovelaceCardEditor,
-  LovelaceLayoutOptions,
   UNAVAILABLE,
   UNKNOWN,
 } from "../../../ha";
@@ -19,6 +18,7 @@ import "../../../shared/shape-avatar";
 import "../../../shared/shape-icon";
 import "../../../shared/state-info";
 import "../../../shared/state-item";
+import { computeAppearance } from "../../../utils/appearance";
 import { MushroomBaseCard } from "../../../utils/base-card";
 import { cardStyle } from "../../../utils/card-styles";
 import { computeRgbColor } from "../../../utils/colors";
@@ -33,7 +33,6 @@ import {
   showName,
   showState,
 } from "./formatted-sensor-card-config";
-import { Appearance } from "../../../shared/config/appearance-config";
 import {
   formatValueAndUom,
   getDataTypeForDeviceClass,
@@ -74,31 +73,12 @@ export class FormattedSensorCard
     };
   }
 
-  public getLayoutOptions(): LovelaceLayoutOptions {
-    if (this._config) {
-      if (this._config.layout === "horizontal") {
-        return {
-          grid_columns: 4,
-          grid_rows: 1,
-        };
-      }
-
-      if (this._config.layout === "vertical") {
-        const options = {
-          grid_columns: 2,
-          grid_rows: 1,
-        };
-
-        if (showIcon(this._config)) {
-          options.grid_rows += 1;
-        }
-        return options;
-      }
-    }
-
-    return {
-      grid_columns: 2,
-      grid_rows: 1,
+  override setConfig(config: FormattedSensorCardConfig): void {
+    this._config = {
+      primary_info: showName(config) ? "name" : "none",
+      secondary_info: showState(config) ? "state" : "none",
+      icon_type: showIcon(config) ? "icon" : "none",
+      ...config,
     };
   }
 
@@ -113,7 +93,7 @@ export class FormattedSensorCard
       return this.renderNotFound(this._config);
     }
 
-    // Parse the entity for some fields
+    // Process availability
     const deviceOffline = [UNAVAILABLE, UNKNOWN].includes(stateObj.state);
 
     // Process the name
@@ -153,14 +133,7 @@ export class FormattedSensorCard
     }
 
     const rtl = computeRTL(this.hass);
-    const layout = this._config.layout ?? "default";
-    const appearance: Appearance = {
-      layout: layout,
-      fill_container: this._config.fill_container ?? false,
-      primary_info: showName(this._config) ? "name" : "none",
-      secondary_info: showState(this._config) ? "state" : "none",
-      icon_type: showIcon(this._config) ? "icon" : "none",
-    };
+    const appearance = computeAppearance(this._config);
 
     return html`
       <ha-card
@@ -180,7 +153,12 @@ export class FormattedSensorCard
               ></ha-state-icon>
             </mushroom-shape-icon>
             <div slot="info">
-              ${this.renderInLayout(layout, name, stateDisplay, stateStyle)}
+              ${this.renderInLayout(
+                appearance.layout,
+                name,
+                stateDisplay,
+                stateStyle
+              )}
             </div>
           </mushroom-state-item>
         </mushroom-card>

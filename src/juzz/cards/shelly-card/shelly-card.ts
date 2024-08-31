@@ -17,6 +17,7 @@ import "../../../shared/shape-avatar";
 import "../../../shared/shape-icon";
 import "../../../shared/state-info";
 import "../../../shared/state-item";
+import { computeAppearance } from "../../../utils/appearance";
 import { MushroomBaseDeviceCard } from "../../utils/base-device-card";
 import { computeRgbColor } from "../../../utils/colors";
 import { registerCustomCard } from "../../../utils/custom-cards";
@@ -27,7 +28,6 @@ import {
   SHELLY_CARD_DEFAULT_USE_DEVICE_NAME,
 } from "./const";
 import { ShellyCardConfig, showDeviceControls } from "./shelly-card-config";
-import { Appearance } from "../../../shared/config/appearance-config";
 
 registerCustomCard({
   type: SHELLY_CARD_NAME,
@@ -64,8 +64,20 @@ export class ShellyUpdateCard
     };
   }
 
+  override setConfig(config: ShellyCardConfig): void {
+    this._config = {
+      primary_info: "name",
+      secondary_info: "state",
+      icon_type: "icon",
+      ...config,
+    };
+  }
+
   protected get hasControls(): boolean {
-    return true;
+    if (!this._config) {
+      return false;
+    }
+    return showDeviceControls(this._config);
   }
 
   protected render() {
@@ -79,7 +91,7 @@ export class ShellyUpdateCard
       return this.renderNotFound(this._config);
     }
 
-    // Parse the entity for some fields
+    // Process availability
     const deviceOffline = [UNAVAILABLE, UNKNOWN].includes(stateObj.state);
     const hasUpdate = stateObj.state === ON;
     const installedVersion = stateObj.attributes?.installed_version;
@@ -88,12 +100,14 @@ export class ShellyUpdateCard
     const installing =
       typeof installProgress === "number" || installProgress === true;
 
+    // Process the name
     const name =
       this._config.name ||
       this.getDeviceName() ||
       stateObj.attributes.friendly_name ||
       "";
 
+    // Process the icon and state
     let icon = "mdi:cloud-off-outline";
     let iconColor = "disabled";
     let stateDisplay = "Device offline";
@@ -121,21 +135,15 @@ export class ShellyUpdateCard
       iconColor = "var(--rgb-state-update-off)";
       stateDisplay = installedVersion || "Up to date";
     }
-
     const iconRgbColor = computeRgbColor(iconColor);
     const iconStyle = {
       "--icon-color": `rgb(${iconRgbColor})`,
       "--shape-color": `rgba(${iconRgbColor}, 0.2)`,
     };
 
-    const rtl = computeRTL(this.hass);
-    const appearance: Appearance = {
-      layout: this._config.layout ?? "default",
-      fill_container: this._config.fill_container ?? false,
-      primary_info: "name",
-      secondary_info: "state",
-      icon_type: "icon",
     };
+    const rtl = computeRTL(this.hass);
+    const appearance = computeAppearance(this._config);
 
     return html`
       <ha-card

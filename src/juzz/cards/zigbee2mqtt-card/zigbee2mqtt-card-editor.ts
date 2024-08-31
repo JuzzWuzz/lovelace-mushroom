@@ -91,7 +91,7 @@ export class Zigbee2MQTTCardEditor
       return "Show Power Status?";
     }
     if (schema.name === "show_related_entities") {
-      return "Show Other Device Entities?";
+      return "Show Related Entities?";
     }
     if (schema.name === "show_last_seen") {
       return "Show Last Seen?";

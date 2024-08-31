@@ -4,6 +4,7 @@ import "./utils/form/custom/ha-selector-mushroom-color";
 import "./utils/form/custom/ha-selector-mushroom-icon-type";
 import "./utils/form/custom/ha-selector-mushroom-info";
 import "./utils/form/custom/ha-selector-mushroom-layout";
+import "./juzz/utils/form/custom/ha-selector-mushroom-data-type";
 import "./juzz/utils/form/custom/ha-selector-mushroom-entity-type";
 
 import "./cards/alarm-control-panel-card/alarm-control-panel-card";
@@ -28,6 +29,7 @@ import "./badges/template/template-badge";
 
 import "./juzz/cards/air-purifier-card/air-purifier-card";
 import "./juzz/cards/bar-card/bar-card";
+import "./juzz/cards/formatted-sensor-card/formatted-sensor-card";
 import "./juzz/cards/shelly-card/shelly-card";
 import "./juzz/cards/zigbee2mqtt-card/zigbee2mqtt-card";
 

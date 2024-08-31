@@ -1,4 +1,5 @@
 import { ActionConfig } from "../../ha";
+import { MushDataTypeSelector } from "../../juzz/utils/form/custom/ha-selector-mushroom-data-type";
 import { MushEntityTypeSelector } from "../../juzz/utils/form/custom/ha-selector-mushroom-entity-type";
 import { MushAlignementSelector } from "./custom/ha-selector-mushroom-alignment";
 import { MushColorSelector } from "./custom/ha-selector-mushroom-color";
@@ -12,6 +13,7 @@ type MushSelector =
   | MushInfoSelector
   | MushIconTypeSelector
   | MushAlignementSelector
+  | MushDataTypeSelector
   | MushEntityTypeSelector;
 
 export type Selector =

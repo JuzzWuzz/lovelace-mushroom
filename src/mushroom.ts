@@ -4,6 +4,7 @@ import { version } from "../package.json";
 // import "./utils/form/custom/ha-selector-mushroom-icon-type";
 // import "./utils/form/custom/ha-selector-mushroom-info";
 // import "./utils/form/custom/ha-selector-mushroom-layout";
+import "./juzz/utils/form/custom/ha-selector-mushroom-data-type";
 import "./juzz/utils/form/custom/ha-selector-mushroom-entity-type";
 
 // import "./cards/alarm-control-panel-card/alarm-control-panel-card";
@@ -24,10 +25,11 @@ import "./juzz/utils/form/custom/ha-selector-mushroom-entity-type";
 // import "./cards/update-card/update-card";
 // import "./cards/vacuum-card/vacuum-card";
 
-import "./badges/template/template-badge";
+// import "./badges/template/template-badge";
 
 import "./juzz/cards/air-purifier-card/air-purifier-card";
 import "./juzz/cards/bar-card/bar-card";
+import "./juzz/cards/formatted-sensor-card/formatted-sensor-card";
 import "./juzz/cards/shelly-card/shelly-card";
 import "./juzz/cards/zigbee2mqtt-card/zigbee2mqtt-card";
 

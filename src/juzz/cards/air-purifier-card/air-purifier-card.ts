@@ -23,6 +23,7 @@ import {
 // import "../../../shared/shape-icon";
 // import "../../../shared/state-info";
 // import "../../../shared/state-item";
+import { computeAppearance } from "../../../utils/appearance";
 import { MushroomBaseDeviceCard } from "../../utils/base-device-card";
 import { registerCustomCard } from "../../../utils/custom-cards";
 import {
@@ -34,7 +35,6 @@ import {
   AirPurifierCardConfig,
   showDeviceControls,
 } from "./air-purifier-card-config";
-import { Appearance } from "../../../shared/config/appearance-config";
 
 registerCustomCard({
   type: AIR_PURIFIER_CARD_NAME,
@@ -65,6 +65,15 @@ export class AirPurifierCard
     return {
       type: `custom:${AIR_PURIFIER_CARD_NAME}`,
       entity: fans[0],
+    };
+  }
+
+  override setConfig(config: AirPurifierCardConfig): void {
+    this._config = {
+      primary_info: "name",
+      secondary_info: "state",
+      icon_type: "icon",
+      ...config,
     };
   }
 
@@ -99,31 +108,30 @@ export class AirPurifierCard
       return this.renderNotFound(this._config);
     }
 
-    // Parse the entity for some fields
+    // Process availability
+    const active = isActive(stateObj);
     const deviceOffline = [UNAVAILABLE, UNKNOWN].includes(stateObj.state);
 
     // Get the related entities (To add in their values on the screen)
     let relatedEntities: HassEntity[] = this.getDeviceEntities("air_purifier");
 
+    // Process the name
     const name = this._config.name || stateObj.attributes.friendly_name || "";
+
+    // Process the state
     const stateDisplay = deviceOffline
       ? "Device offline"
       : this.getStateDisply(stateObj);
+
+    // Process the icon
     const icon = this._config.icon;
     let iconStyle = {};
-    const active = isActive(stateObj);
     if (active) {
       iconStyle["--animation-duration"] = `1s`;
     }
 
     const rtl = computeRTL(this.hass);
-    const appearance: Appearance = {
-      layout: this._config.layout ?? "default",
-      fill_container: this._config.fill_container ?? false,
-      primary_info: "name",
-      secondary_info: "state",
-      icon_type: "icon",
-    };
+    const appearance = computeAppearance(this._config);
 
     return html`
       <ha-card
@@ -158,14 +166,14 @@ export class AirPurifierCard
               <mushroom-row-container .rowType=${"secondary"}>
                 <span>${stateDisplay}</span>
                 <div class="spacer"></div>
-                ${this._config.layout === "horizontal"
+                ${appearance.layout === "horizontal"
                   ? this.renderRelatedEntities(deviceOffline, relatedEntities)
                   : nothing}
               </mushroom-row-container>
             </div>
           </mushroom-state-item>
           <div class="actions">
-            ${this._config.layout === "horizontal"
+            ${appearance.layout === "horizontal"
               ? this.renderDeviceControls()
               : html`
                   <mushroom-row-container

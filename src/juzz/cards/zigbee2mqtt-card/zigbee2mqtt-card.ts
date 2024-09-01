@@ -16,6 +16,7 @@ import {
 // import "../../../shared/shape-icon";
 // import "../../../shared/state-info";
 // import "../../../shared/state-item";
+import { computeAppearance } from "../../../utils/appearance";
 import {
   EntityType,
   MushroomBaseDeviceCard,
@@ -36,7 +37,6 @@ import {
   showDeviceControls,
 } from "./zigbee2mqtt-card-config";
 import { classMap } from "lit/directives/class-map.js";
-import { Appearance } from "../../../shared/config/appearance-config";
 
 registerCustomCard({
   type: ZIGBEE2MQTT_CARD_NAME,
@@ -74,6 +74,15 @@ export class Zigbee2MQTTCard
     };
   }
 
+  override setConfig(config: Zigbee2MQTTCardConfig): void {
+    this._config = {
+      primary_info: "name",
+      secondary_info: "state",
+      icon_type: "icon",
+      ...config,
+    };
+  }
+
   protected get hasControls(): boolean {
     return true;
   }
@@ -89,12 +98,12 @@ export class Zigbee2MQTTCard
       return this.renderNotFound(this._config);
     }
 
+    // Process availability
+    const deviceOffline = [UNAVAILABLE, UNKNOWN].includes(stateObj.state);
+
     // Determine the Entity Type
     const entityType =
       this._config.entity_type ?? this.computeEntityType(stateObj);
-
-    // Parse the entity for some fields
-    const deviceOffline = [UNAVAILABLE, UNKNOWN].includes(stateObj.state);
 
     // Get the related entities (To add in their values on the screen)
     let relatedEntities: HassEntity[] = this.getDeviceEntities(entityType);
@@ -108,15 +117,19 @@ export class Zigbee2MQTTCard
       (e) => e !== batteryEntity && e !== lastSeenEntity
     );
 
+    // Process the name
     const name =
       this._config.name ||
       this.getDeviceName() ||
       stateObj.attributes.friendly_name ||
       "";
+
+    // Process the state
     const stateDisplay = deviceOffline
       ? "Device offline"
       : this.getStateDisply(stateObj);
 
+    // Process the icon
     const iconStyle = {};
     const iconColor = this.getIconColor(entityType, this._config.icon_color);
     if (iconColor) {
@@ -126,13 +139,7 @@ export class Zigbee2MQTTCard
     }
 
     const rtl = computeRTL(this.hass);
-    const appearance: Appearance = {
-      layout: this._config.layout ?? "default",
-      fill_container: this._config.fill_container ?? false,
-      primary_info: "name",
-      secondary_info: "state",
-      icon_type: "icon",
-    };
+    const appearance = computeAppearance(this._config);
 
     return html`
       <ha-card
@@ -162,7 +169,7 @@ export class Zigbee2MQTTCard
               >
                 <span>${stateDisplay}</span>
                 <div class="spacer"></div>
-                ${this._config.layout === "horizontal"
+                ${appearance.layout === "horizontal"
                   ? this.renderRelatedEntities(deviceOffline, relatedEntities)
                   : nothing}
                 ${this.renderLastSeen(deviceOffline, lastSeenEntity?.state)}
@@ -170,7 +177,7 @@ export class Zigbee2MQTTCard
             </div>
           </mushroom-state-item>
           <div class="actions">
-            ${this._config.layout === "horizontal"
+            ${appearance.layout === "horizontal"
               ? this.renderDeviceControls()
               : html`
                   <mushroom-row-container

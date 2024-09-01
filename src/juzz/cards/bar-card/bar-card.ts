@@ -20,6 +20,7 @@ import {
 // import "../../../shared/state-info";
 // import "../../../shared/state-item";
 import "../../../juzz/shared/slider-ex";
+import { computeAppearance } from "../../../utils/appearance";
 import { MushroomBaseCard } from "../../../utils/base-card";
 import { cardStyle } from "../../../utils/card-styles";
 import { computeRgbColor } from "../../../utils/colors";
@@ -38,7 +39,6 @@ import {
   showName,
   showState,
 } from "./bar-card-config";
-import { Appearance } from "../../../shared/config/appearance-config";
 
 registerCustomCard({
   type: BAR_CARD_NAME,
@@ -74,13 +74,17 @@ export class BarCard
     };
   }
 
+  override setConfig(config: BarCardConfig): void {
+    this._config = {
+      primary_info: showName(config) ? "name" : "none",
+      secondary_info: showState(config) ? "state" : "none",
+      icon_type: showIcon(config) ? "icon" : "none",
+      ...config,
+    };
+  }
+
   protected get hasControls(): boolean {
-    if (!this._config) return false;
-    return (
-      Boolean(showIcon(this._config)) ||
-      Boolean(showName(this._config)) ||
-      Boolean(showState(this._config))
-    );
+    return true;
   }
 
   private computeSeverity(
@@ -106,10 +110,13 @@ export class BarCard
       return this.renderNotFound(this._config);
     }
 
+    // Process availability
     const available = isAvailable(stateObj);
-    const name = this._config.name || stateObj.attributes.friendly_name || "";
-    const icon = this._config.icon;
 
+    // Process the name
+    const name = this._config.name || stateObj.attributes.friendly_name || "";
+
+    // Process the state
     const stateDisplay = this.hass.formatEntityState
       ? this.hass.formatEntityState(stateObj)
       : computeStateDisplay(
@@ -120,14 +127,11 @@ export class BarCard
           this.hass.entities
         );
 
+    // Process the icon
+    const icon = this._config.icon;
+
     const rtl = computeRTL(this.hass);
-    const appearance: Appearance = {
-      layout: this._config.layout ?? "default",
-      fill_container: this._config.fill_container ?? false,
-      primary_info: showName(this._config) ? "name" : "none",
-      secondary_info: showState(this._config) ? "state" : "none",
-      icon_type: showIcon(this._config) ? "icon" : "none",
-    };
+    const appearance = computeAppearance(this._config);
 
     const entityState = available ? Number(stateObj.state) : Number(0);
 

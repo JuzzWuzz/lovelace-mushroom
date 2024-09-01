@@ -25,6 +25,7 @@ import {
 const SCHEMA: HaFormSchema[] = [
   { name: "entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
   { name: "name", selector: { text: {} } },
+  { name: "beta_entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
   ...SIMPLE_APPEARANCE_FORM_SCHEMA,
   ...BASE_DEVICE_FORM_SCHEMA,
 ];
@@ -51,6 +52,9 @@ export class ShellyCardEditor
 
     if (GENERIC_LABELS.includes(schema.name)) {
       return customLocalize(`editor.card.generic.${schema.name}`);
+    }
+    if (schema.name === "beta_entity") {
+      return "BETA Entity";
     }
     if (schema.name === "use_device_name") {
       return "Use Device Name?";

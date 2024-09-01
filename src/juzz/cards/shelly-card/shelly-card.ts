@@ -104,12 +104,12 @@ export class ShellyUpdateCard
     // Parse the entity for some fields
     const installedVersion = stateObj.attributes?.installed_version;
     const betaVersion =
-      [betaStateObj?.attributes?.latest_versiona]
+      [betaStateObj?.attributes?.latest_version]
         .filter((s) => (s ?? null) !== null)
         .map((v) => `${v} (β)`)
         .join("") || "Latest BETA";
     const stableVersion =
-      stateObj.attributes?.latest_versiona || "Latest stable";
+      stateObj.attributes?.latest_version || "Latest stable";
     const hasBetaUpdate = betaStateObj?.state === ON;
     const hasStableUpdate = stateObj.state === ON;
     const hasUpdate = hasBetaUpdate || hasStableUpdate;

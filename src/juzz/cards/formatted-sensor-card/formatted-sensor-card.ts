@@ -3,8 +3,12 @@ import { customElement } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { styleMap } from "lit/directives/style-map.js";
 import {
+  actionHandler,
+  ActionHandlerEvent,
   computeRTL,
   computeStateDisplay,
+  handleAction,
+  hasAction,
   HomeAssistant,
   LovelaceCard,
   LovelaceCardEditor,
@@ -24,6 +28,7 @@ import { cardStyle } from "../../../utils/card-styles";
 import { computeRgbColor } from "../../../utils/colors";
 import { registerCustomCard } from "../../../utils/custom-cards";
 import {
+  FORMATTED_SENSOR_CARD_DEFAULT_CLAMP_NEGATIVE,
   FORMATTED_SENSOR_CARD_EDITOR_NAME,
   FORMATTED_SENSOR_CARD_NAME,
 } from "./const";
@@ -78,8 +83,18 @@ export class FormattedSensorCard
       primary_info: showName(config) ? "name" : "none",
       secondary_info: showState(config) ? "state" : "none",
       icon_type: showIcon(config) ? "icon" : "none",
+      tap_action: {
+        action: "none",
+      },
+      hold_action: {
+        action: "more-info",
+      },
       ...config,
     };
+  }
+
+  private _handleAction(ev: ActionHandlerEvent) {
+    handleAction(this, this.hass!, this._config!, ev.detail.action!);
   }
 
   protected render() {
@@ -94,18 +109,23 @@ export class FormattedSensorCard
     }
 
     // Process availability
-    const deviceOffline = [UNAVAILABLE, UNKNOWN].includes(stateObj.state);
+    const sensorOffline = [UNAVAILABLE, UNKNOWN].includes(stateObj.state);
 
     // Process the name
     const name = this._config.name || stateObj.attributes.friendly_name || "";
 
     // Process the state
+    const clampNegative =
+      this._config.clamp_negative ??
+      FORMATTED_SENSOR_CARD_DEFAULT_CLAMP_NEGATIVE;
+    console.log(stateObj.attributes);
     const dataType =
       this._config.data_type ??
       getDataTypeForDeviceClass(stateObj.attributes.device_class);
-    const stateDisplay =
-      dataType !== undefined
-        ? formatValueAndUom(stateObj.state, dataType, false).formatted()
+    const stateDisplay = sensorOffline
+      ? "Sensor Offline"
+      : dataType !== undefined
+        ? formatValueAndUom(stateObj.state, dataType, clampNegative).formatted()
         : this.hass.formatEntityState
           ? this.hass.formatEntityState(stateObj)
           : computeStateDisplay(
@@ -140,10 +160,18 @@ export class FormattedSensorCard
         class=${classMap({ "fill-container": appearance.fill_container })}
       >
         <mushroom-card .appearance=${appearance} ?rtl=${rtl}>
-          <mushroom-state-item ?rtl=${rtl} .appearance=${appearance}>
+          <mushroom-state-item
+            ?rtl=${rtl}
+            .appearance=${appearance}
+            @action=${this._handleAction}
+            .actionHandler=${actionHandler({
+              hasHold: hasAction(this._config.hold_action),
+              hasDoubleClick: hasAction(this._config.double_tap_action),
+            })}
+          >
             <mushroom-shape-icon
               slot="icon"
-              .disabled=${deviceOffline}
+              .disabled=${sensorOffline}
               style=${styleMap(iconStyle)}
             >
               <ha-state-icon

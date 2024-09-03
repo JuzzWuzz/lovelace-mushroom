@@ -1,4 +1,4 @@
-import { DEFAULT_CLAMP_NEGATIVE, NO_VALUE } from "./const";
+import { NO_VALUE } from "./const";
 import { DataType, DataTypeConfig, FormattedValue } from "./types";
 
 export function getDataTypeForDeviceClass(
@@ -52,13 +52,20 @@ export function getDataTypeConfig(dataType: DataType): DataTypeConfig {
         unitStep: 1000,
       };
     }
+    case "latency": {
+      return {
+        floatPrecision: 0,
+        unit: "ms",
+        unitSeparator: "",
+      };
+    }
   }
 }
 
 export function formatValueAndUom(
   value: string | number | null | undefined,
   dataType: DataType,
-  clampNegative: boolean = DEFAULT_CLAMP_NEGATIVE
+  clampNegative: boolean
 ): FormattedValue {
   const dataTypeConfig = getDataTypeConfig(dataType);
   let lValue: string | number | null | undefined = value;

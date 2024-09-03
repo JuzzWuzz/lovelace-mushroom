@@ -9,12 +9,14 @@ import { HaFormSchema } from "../../../utils/form/ha-form";
 import { loadHaComponents } from "../../../utils/loader";
 import { SIMPLE_APPEARANCE_FORM_SCHEMA } from "../../shared/config/simple-layout-config";
 import {
+  FORMATTED_SENSOR_CARD_DEFAULT_CLAMP_NEGATIVE,
   FORMATTED_SENSOR_CARD_DEFAULT_SHOW_ICON,
   FORMATTED_SENSOR_CARD_DEFAULT_SHOW_NAME,
   FORMATTED_SENSOR_CARD_DEFAULT_SHOW_STATE,
   FORMATTED_SENSOR_CARD_EDITOR_NAME,
 } from "./const";
 import {
+  clampNegative,
   FormattedSensorCardConfig,
   FormattedSensorCardConfigStruct,
   showIcon,
@@ -53,6 +55,7 @@ const SCHEMA: HaFormSchema[] = [
       { name: "show_icon", selector: { boolean: {} } },
       { name: "show_name", selector: { boolean: {} } },
       { name: "show_state", selector: { boolean: {} } },
+      { name: "clamp_negative", selector: { boolean: {} } },
     ],
   },
 ];
@@ -86,6 +89,9 @@ export class BarCardEditor
     if (schema.name === "state_color") {
       return "State Color";
     }
+    if (schema.name === "clamp_negative") {
+      return "Clamp Negative Values?";
+    }
 
     return this.hass!.localize(
       `ui.panel.lovelace.editor.card.generic.${schema.name}`
@@ -103,6 +109,7 @@ export class BarCardEditor
     data.show_icon = showIcon(data);
     data.show_name = showName(data);
     data.show_state = showState(data);
+    data.clamp_negative = clampNegative(data);
 
     return html`
       <ha-form
@@ -129,6 +136,11 @@ export class BarCardEditor
     }
     if (newConfig.show_state === FORMATTED_SENSOR_CARD_DEFAULT_SHOW_STATE) {
       delete newConfig.show_state;
+    }
+    if (
+      newConfig.clamp_negative === FORMATTED_SENSOR_CARD_DEFAULT_CLAMP_NEGATIVE
+    ) {
+      delete newConfig.clamp_negative;
     }
     fireEvent(this, "config-changed", { config: newConfig });
   }

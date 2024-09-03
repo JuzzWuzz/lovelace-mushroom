@@ -11,6 +11,7 @@ import {
 } from "../../shared/config/simple-layout-config";
 import { DATA_TYPES, DataType } from "../../utils/types";
 import {
+  FORMATTED_SENSOR_CARD_DEFAULT_CLAMP_NEGATIVE,
   FORMATTED_SENSOR_CARD_DEFAULT_SHOW_ICON,
   FORMATTED_SENSOR_CARD_DEFAULT_SHOW_NAME,
   FORMATTED_SENSOR_CARD_DEFAULT_SHOW_STATE,
@@ -25,6 +26,7 @@ export type FormattedSensorCardConfig = LovelaceCardConfig &
     show_icon?: boolean;
     show_name?: boolean;
     show_state?: boolean;
+    clamp_negative?: boolean;
   };
 
 export const FormattedSensorCardConfigStruct = assign(
@@ -38,6 +40,7 @@ export const FormattedSensorCardConfigStruct = assign(
     show_icon: optional(boolean()),
     show_name: optional(boolean()),
     show_state: optional(boolean()),
+    clamp_negative: optional(boolean()),
   })
 );
 
@@ -51,4 +54,8 @@ export const showName = (config: FormattedSensorCardConfig): boolean => {
 
 export const showState = (config: FormattedSensorCardConfig): boolean => {
   return config.show_state ?? FORMATTED_SENSOR_CARD_DEFAULT_SHOW_STATE;
+};
+
+export const clampNegative = (config: FormattedSensorCardConfig): boolean => {
+  return config.clamp_negative ?? FORMATTED_SENSOR_CARD_DEFAULT_CLAMP_NEGATIVE;
 };

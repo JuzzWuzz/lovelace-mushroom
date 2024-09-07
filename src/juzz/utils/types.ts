@@ -1,9 +1,9 @@
 export const DATA_TYPES = [
   "energy",
+  "latency",
   "percentage",
   "power",
   "temperature",
-  "latency",
 ] as const;
 export type DataType = (typeof DATA_TYPES)[number];
 

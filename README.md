@@ -90,8 +90,12 @@ Different cards are available for differents entities :
 -   ✏️ [Title card](docs/cards/title.md)
 -   📦 [Update card](docs/cards/update.md)
 -   🧹 [Vacuum card](docs/cards/vacuum.md)
+
+Juzz Custom Cards
+
 -   🍃 [Air Purifier card](docs/cards/air-purifier.md)
 -   📊 [Bar card](docs/cards/bar.md)
+-   🔮 [Formatted Sensor card](docs/cards/formatted-sensor.md)
 -   📦 [Shelly card](docs/cards/shelly.md)
 -   🪄 [Zigbee2MQTT card](docs/cards/zigbee2mqtt.md)
 

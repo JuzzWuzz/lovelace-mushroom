@@ -22,10 +22,18 @@ export function getDataTypeForDeviceClass(
 
 export function getDataTypeConfig(dataType: DataType): DataTypeConfig {
   switch (dataType) {
-    case "temperature": {
+    case "energy": {
       return {
-        floatPrecision: 1,
-        unit: "°C",
+        floatPrecision: 2,
+        unitArray: ["Wh", "kWh", "MWh", "GWh"],
+        unitSeparator: " ",
+        unitStep: 1000,
+      };
+    }
+    case "latency": {
+      return {
+        floatPrecision: 0,
+        unit: "ms",
         unitSeparator: "",
       };
     }
@@ -44,18 +52,10 @@ export function getDataTypeConfig(dataType: DataType): DataTypeConfig {
         unitStep: 1000,
       };
     }
-    case "energy": {
+    case "temperature": {
       return {
-        floatPrecision: 2,
-        unitArray: ["Wh", "kWh", "MWh", "GWh"],
-        unitSeparator: " ",
-        unitStep: 1000,
-      };
-    }
-    case "latency": {
-      return {
-        floatPrecision: 0,
-        unit: "ms",
+        floatPrecision: 1,
+        unit: "°C",
         unitSeparator: "",
       };
     }

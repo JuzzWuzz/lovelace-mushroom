@@ -118,7 +118,6 @@ export class FormattedSensorCard
     const clampNegative =
       this._config.clamp_negative ??
       FORMATTED_SENSOR_CARD_DEFAULT_CLAMP_NEGATIVE;
-    console.log(stateObj.attributes);
     const dataType =
       this._config.data_type ??
       getDataTypeForDeviceClass(stateObj.attributes.device_class);

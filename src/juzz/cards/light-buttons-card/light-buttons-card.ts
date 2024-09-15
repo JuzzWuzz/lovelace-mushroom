@@ -169,13 +169,7 @@ export class LightButtonsCard extends LitElement implements LovelaceCard {
     iconStyle["--icon-color"] = `rgb(${color})`;
     iconStyle["--shape-color"] = `rgba(${color}, 0.25)`;
 
-    const label = (() => {
-      if (buttonConfig.type === "toggle") {
-        return buttonConfig.label ?? `Turn ${active ? "Off" : "On"}`;
-      } else {
-        return buttonConfig.label;
-      }
-    })();
+    const label = buttonConfig.label;
 
     return html`
       <div class="button">
@@ -190,7 +184,7 @@ export class LightButtonsCard extends LitElement implements LovelaceCard {
             .icon=${icon}
           ></ha-state-icon>
         </mushroom-shape-icon>
-        ${showLabels ? html`<span>${label}</span>` : nothing}
+        ${showLabels && label ? html`<span>${label}</span>` : nothing}
       </div>
     `;
   }
@@ -253,12 +247,13 @@ export class LightButtonsCard extends LitElement implements LovelaceCard {
           justify-content: space-between;
         }
         .button-container.show-labels > .button {
-          width: calc(var(--icon-size) * 2);
+          max-width: calc(var(--icon-size) * 2);
         }
         .button {
           display: flex;
           flex-direction: column;
           align-items: center;
+          row-gap: calc(var(--chip-spacing) / 2);
         }
         .button > mushroom-shape-icon {
           cursor: pointer;
@@ -269,6 +264,10 @@ export class LightButtonsCard extends LitElement implements LovelaceCard {
           overflow: hidden;
           text-overflow: ellipsis;
           max-width: 100%;
+          font-weight: var(--card-secondary-font-weight);
+          font-size: var(--card-secondary-font-size);
+          line-height: var(--card-secondary-line-height);
+          letter-spacing: var(--card-secondary-letter-spacing);
         }
       `,
     ];

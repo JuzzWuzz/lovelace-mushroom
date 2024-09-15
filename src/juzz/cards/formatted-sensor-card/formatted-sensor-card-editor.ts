@@ -61,7 +61,7 @@ const SCHEMA: HaFormSchema[] = [
 ];
 
 @customElement(FORMATTED_SENSOR_CARD_EDITOR_NAME)
-export class BarCardEditor
+export class FormattedSensorCardEditor
   extends MushroomBaseElement
   implements LovelaceCardEditor
 {

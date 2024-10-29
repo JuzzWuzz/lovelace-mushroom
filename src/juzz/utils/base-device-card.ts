@@ -111,7 +111,8 @@ export class MushroomBaseDeviceCard<
           case "window": {
             return "contact";
           }
-          case "motion": {
+          case "motion":
+          case "occupancy": {
             return "motion";
           }
         }

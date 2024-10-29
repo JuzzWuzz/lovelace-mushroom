@@ -172,7 +172,7 @@ export class Zigbee2MQTTCard
                 ${appearance.layout === "horizontal"
                   ? this.renderRelatedEntities(deviceOffline, relatedEntities)
                   : nothing}
-                ${this.renderLastSeen(deviceOffline, lastSeenEntity?.state)}
+                ${this.renderLastSeen(lastSeenEntity)}
               </mushroom-row-container>
             </div>
           </mushroom-state-item>
@@ -261,13 +261,13 @@ export class Zigbee2MQTTCard
   }
 
   private renderLastSeen(
-    deviceOffline: boolean,
-    lastSeen?: string
+    lastSeen?: HassEntity
   ): TemplateResult | typeof nothing {
     if (
       !this._config ||
       !showLastSeen(this._config) ||
-      (deviceOffline && !lastSeen)
+      !lastSeen ||
+      [UNAVAILABLE, UNKNOWN].includes(lastSeen.state)
     ) {
       return nothing;
     }
@@ -276,7 +276,7 @@ export class Zigbee2MQTTCard
       <mushroom-inline-state-item .hass=${this.hass}>
         <ha-relative-time
           .hass=${this.hass}
-          .datetime=${lastSeen}
+          .datetime=${lastSeen.state}
           capitalize
         ></ha-relative-time>
       </mushroom-inline-state-item>

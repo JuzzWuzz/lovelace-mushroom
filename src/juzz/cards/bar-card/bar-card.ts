@@ -5,7 +5,6 @@ import { classMap } from "lit/directives/class-map.js";
 import { styleMap } from "lit/directives/style-map.js";
 import {
   computeRTL,
-  computeStateDisplay,
   HomeAssistant,
   isActive,
   isAvailable,
@@ -117,15 +116,7 @@ export class BarCard
     const name = this._config.name || stateObj.attributes.friendly_name || "";
 
     // Process the state
-    const stateDisplay = this.hass.formatEntityState
-      ? this.hass.formatEntityState(stateObj)
-      : computeStateDisplay(
-          this.hass.localize,
-          stateObj,
-          this.hass.locale,
-          this.hass.config,
-          this.hass.entities
-        );
+    const stateDisplay = this.hass.formatEntityState(stateObj);
 
     // Process the icon
     const icon = this._config.icon;

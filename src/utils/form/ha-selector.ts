@@ -251,7 +251,7 @@ export interface TimeSelector {
 export type UiAction = Exclude<ActionConfig["action"], "fire-dom-event">;
 
 export interface UiActionSelector {
-  "ui-action": {
+  ui_action: {
     actions?: UiAction[];
   } | null;
 }

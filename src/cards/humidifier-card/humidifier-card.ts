@@ -1,17 +1,17 @@
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
+import { styleMap } from "lit/directives/style-map.js";
 import {
   actionHandler,
   ActionHandlerEvent,
-  blankBeforePercent,
   computeRTL,
-  computeStateDisplay,
   handleAction,
   hasAction,
   HomeAssistant,
   HumidifierEntity,
   isActive,
+  isAvailable,
   LovelaceCard,
   LovelaceCardEditor,
 } from "../../ha";
@@ -66,8 +66,6 @@ export class HumidifierCard
     };
   }
 
-  @state() private humidity?: number;
-
   protected get hasControls(): boolean {
     return Boolean(this._config?.show_target_humidity_control);
   }
@@ -88,12 +86,6 @@ export class HumidifierCard
     handleAction(this, this.hass!, this._config!, ev.detail.action!);
   }
 
-  private onCurrentHumidityChange(e: CustomEvent<{ value?: number }>): void {
-    if (e.detail.value != null) {
-      this.humidity = e.detail.value;
-    }
-  }
-
   protected render() {
     if (!this._config || !this.hass || !this._config.entity) {
       return nothing;
@@ -110,17 +102,13 @@ export class HumidifierCard
     const appearance = computeAppearance(this._config);
     const picture = computeEntityPicture(stateObj, appearance.icon_type);
 
-    let stateDisplay = this.hass.formatEntityState
-      ? this.hass.formatEntityState(stateObj)
-      : computeStateDisplay(
-          this.hass.localize,
-          stateObj,
-          this.hass.locale,
-          this.hass.config,
-          this.hass.entities
-        );
-    if (this.humidity) {
-      stateDisplay = `${this.humidity}${blankBeforePercent(this.hass.locale)}%`;
+    let stateDisplay = this.hass.formatEntityState(stateObj);
+    if (stateObj.attributes.current_humidity !== null) {
+      const humidity = this.hass.formatEntityAttributeValue(
+        stateObj,
+        "current_humidity"
+      );
+      stateDisplay += ` ⸱ ${humidity}`;
     }
 
     const rtl = computeRTL(this.hass);
@@ -155,13 +143,39 @@ export class HumidifierCard
                   <mushroom-humidifier-humidity-control
                     .hass=${this.hass}
                     .entity=${stateObj}
-                    @current-change=${this.onCurrentHumidityChange}
                   ></mushroom-humidifier-humidity-control>
                 </div>
               `
             : nothing}
         </mushroom-card>
       </ha-card>
+    `;
+  }
+
+  protected renderBadge(entity: HumidifierEntity) {
+    if (isAvailable(entity)) {
+      return this.renderActionBadge(entity);
+    } else {
+      return super.renderBadge(entity);
+    }
+  }
+
+  renderActionBadge(entity: HumidifierEntity) {
+    const action = entity.attributes.action;
+    if (!action || action == "off") return nothing;
+
+    const color =
+      action === "idle" ? "var(--rgb-disabled)" : "var(--rgb-state-humidifier)";
+    const icon = action === "idle" ? "mdi:clock-outline" : "mdi:water-percent";
+
+    return html`
+      <mushroom-badge-icon
+        slot="badge"
+        .icon=${icon}
+        style=${styleMap({
+          "--main-color": `rgb(${color})`,
+        })}
+      ></mushroom-badge-icon>
     `;
   }
 

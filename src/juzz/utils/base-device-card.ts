@@ -1,6 +1,6 @@
 import { HassEntity } from "home-assistant-js-websocket";
-import { css, CSSResultGroup, TemplateResult, html, nothing } from "lit";
-import { DeviceRegistryEntry, computeStateDisplay, fireEvent } from "../../ha";
+import { css, CSSResultGroup } from "lit";
+import { DeviceRegistryEntry } from "../../ha";
 import "../shared/inline-state-item";
 import "../shared/row-container";
 import { MushroomBaseCard } from "../../utils/base-card";
@@ -85,15 +85,7 @@ export class MushroomBaseDeviceCard<
   }
 
   protected getStateDisply(stateObj: HassEntity) {
-    return this.hass.formatEntityState
-      ? this.hass.formatEntityState(stateObj)
-      : computeStateDisplay(
-          this.hass.localize,
-          stateObj,
-          this.hass.locale,
-          this.hass.config,
-          this.hass.entities
-        );
+    return this.hass.formatEntityState(stateObj);
   }
 
   /**

@@ -11,10 +11,6 @@ import {
 } from "superstruct";
 import { LovelaceCardConfig } from "../../../ha";
 import { lovelaceCardConfigStruct } from "../../../shared/config/lovelace-card-config";
-import {
-  SimpleAppearanceSharedConfig,
-  simpleAppearanceSharedConfigStruct,
-} from "../../shared/config/simple-layout-config";
 import { LovelaceButtonConfig } from "./buttons/types";
 import { LIGHT_BUTTONS_DEFAULT_SHOW_LABELS } from "./const";
 
@@ -35,9 +31,7 @@ export const effectButtonConfigStruct = assign(
 
 export const toggleButtonConfigStruct = assign(
   baseButtonConfigStruct,
-  object({
-    type: literal("toggle"),
-  })
+  object({ type: literal("toggle") })
 );
 
 export const turnOnButtonConfigStruct = assign(

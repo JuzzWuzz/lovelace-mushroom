@@ -16,29 +16,20 @@ export type ActionsSharedConfig = {
 };
 
 export const computeActionsFormSchema = (
-  actions?: UiAction[],
-  useCallService?: boolean
+  actions?: UiAction[]
 ): HaFormSchema[] => {
-  if (useCallService && actions) {
-    actions = actions.map((action) => {
-      if (action === "perform-action") {
-        return "call-service";
-      }
-      return action;
-    });
-  }
   return [
     {
       name: "tap_action",
-      selector: { "ui-action": { actions } },
+      selector: { ui_action: { actions } },
     },
     {
       name: "hold_action",
-      selector: { "ui-action": { actions } },
+      selector: { ui_action: { actions } },
     },
     {
       name: "double_tap_action",
-      selector: { "ui-action": { actions } },
+      selector: { ui_action: { actions } },
     },
   ];
 };

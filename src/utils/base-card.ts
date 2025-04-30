@@ -4,10 +4,10 @@ import { property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import {
   computeRTL,
-  computeStateDisplay,
   HomeAssistant,
   isActive,
   isAvailable,
+  LovelaceGridOptions,
   LovelaceLayoutOptions,
 } from "../ha";
 import setupCustomlocalize from "../localize";
@@ -84,6 +84,7 @@ export class MushroomBaseCard<
     return height;
   }
 
+  // For HA < 2024.11
   public getLayoutOptions(): LovelaceLayoutOptions {
     if (!this._config) {
       return {
@@ -145,6 +146,76 @@ export class MushroomBaseCard<
 
     // Ensure card has at least 1 row
     options.grid_rows = Math.max(options.grid_rows, 1);
+
+    return options;
+  }
+
+  public getGridOptions(): LovelaceGridOptions {
+    if (!this._config) {
+      return {
+        columns: 6,
+        rows: 1,
+      };
+    }
+
+    const options = {
+      min_rows: 1,
+      min_columns: 4,
+      columns: 6,
+      rows: 0, // initial value
+    };
+
+    const appearance = computeAppearance(this._config);
+
+    const collapsible_controls =
+      "collapsible_controls" in this._config &&
+      Boolean(this._config.collapsible_controls);
+
+    const hasInfo =
+      appearance.primary_info !== "none" ||
+      appearance.secondary_info !== "none";
+    const hasIcon = appearance.icon_type !== "none";
+    const active = this._stateObj && isActive(this._stateObj);
+
+    const hasControls = this.hasControls && (!collapsible_controls || active);
+
+    if (appearance.layout === "vertical") {
+      if (hasIcon) {
+        options.rows += 1;
+      }
+      if (hasInfo) {
+        options.rows += 1;
+      }
+      if (hasControls) {
+        options.rows += 1;
+      }
+      options.min_columns = 2;
+    }
+
+    if (appearance.layout === "horizontal") {
+      options.rows = 1;
+      options.columns = 12;
+    }
+
+    if (appearance.layout === "default") {
+      if (hasInfo || hasIcon) {
+        options.rows += 1;
+      }
+      if (hasControls) {
+        options.rows += 1;
+      }
+    }
+
+    // If icon only, set 3x1 for size
+    if (!hasControls && !hasInfo) {
+      options.columns = 3;
+      options.rows = 1;
+      options.min_columns = 2;
+    }
+
+    // Ensure card has at least 1 row
+    options.rows = Math.max(options.rows, 1);
+    options.min_rows = options.rows;
 
     return options;
   }
@@ -221,15 +292,8 @@ export class MushroomBaseCard<
     name: string,
     state?: string
   ): TemplateResult | null {
-    const defaultState = this.hass.formatEntityState
-      ? this.hass.formatEntityState(stateObj)
-      : computeStateDisplay(
-          this.hass.localize,
-          stateObj,
-          this.hass.locale,
-          this.hass.config,
-          this.hass.entities
-        );
+    const defaultState = this.hass.formatEntityState(stateObj);
+
     const displayState = state ?? defaultState;
 
     const primary = computeInfoDisplay(

@@ -13,9 +13,7 @@ import { styleMap } from "lit/directives/style-map.js";
 import {
   actionHandler,
   ActionHandlerEvent,
-  blankBeforePercent,
   computeRTL,
-  computeStateDisplay,
   handleAction,
   hasAction,
   HomeAssistant,
@@ -41,6 +39,7 @@ import {
   FAN_ENTITY_DOMAINS,
 } from "./const";
 import "./controls/fan-oscillate-control";
+import "./controls/fan-direction-control";
 import "./controls/fan-percentage-control";
 import { FanCardConfig } from "./fan-card-config";
 import { getPercentage } from "./utils";
@@ -77,7 +76,8 @@ export class FanCard
   protected get hasControls(): boolean {
     return (
       Boolean(this._config?.show_percentage_control) ||
-      Boolean(this._config?.show_oscillate_control)
+      Boolean(this._config?.show_oscillate_control) ||
+      Boolean(this._config?.show_direction_control)
     );
   }
 
@@ -137,17 +137,14 @@ export class FanCard
     const appearance = computeAppearance(this._config);
     const picture = computeEntityPicture(stateObj, appearance.icon_type);
 
-    let stateDisplay = this.hass.formatEntityState
-      ? this.hass.formatEntityState(stateObj)
-      : computeStateDisplay(
-          this.hass.localize,
-          stateObj,
-          this.hass.locale,
-          this.hass.config,
-          this.hass.entities
-        );
+    let stateDisplay = this.hass.formatEntityState(stateObj);
     if (this.percentage != null && stateObj.state === "on") {
-      stateDisplay = `${this.percentage}${blankBeforePercent(this.hass.locale)}%`;
+      const percentage = this.hass.formatEntityAttributeValue(
+        stateObj,
+        "percentage",
+        this.percentage
+      );
+      stateDisplay = percentage;
     }
 
     const rtl = computeRTL(this.hass);
@@ -155,7 +152,8 @@ export class FanCard
     const displayControls =
       (!this._config.collapsible_controls || isActive(stateObj)) &&
       (this._config.show_percentage_control ||
-        this._config.show_oscillate_control);
+        this._config.show_oscillate_control ||
+        this._config.show_direction_control);
 
     return html`
       <ha-card
@@ -197,6 +195,14 @@ export class FanCard
                         ></mushroom-fan-oscillate-control>
                       `
                     : nothing}
+                  ${this._config.show_direction_control
+                  ? html`
+                      <mushroom-fan-direction-control
+                        .hass=${this.hass}
+                        .entity=${stateObj}
+                      ></mushroom-fan-direction-control>
+                    `
+                  : nothing}
                 </div>
               `
             : nothing}

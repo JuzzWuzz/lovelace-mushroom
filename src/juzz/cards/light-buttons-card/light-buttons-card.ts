@@ -10,12 +10,12 @@ import {
   LovelaceCard,
   LovelaceCardEditor,
 } from "../../../ha";
-// import "../../shared/badge-icon";
-// import "../../shared/card";
-// import "../../shared/shape-avatar";
-// import "../../shared/shape-icon";
-// import "../../shared/state-info";
-// import "../../shared/state-item";
+import "../../../shared/badge-icon";
+import "../../../shared/card";
+import "../../../shared/shape-avatar";
+import "../../../shared/shape-icon";
+import "../../../shared/state-info";
+import "../../../shared/state-item";
 import { MushroomBaseElement } from "../../../utils/base-element";
 import { cardStyle } from "../../../utils/card-styles";
 import { computeRgbColor } from "../../../utils/colors";
@@ -25,7 +25,6 @@ import {
   LIGHT_ENTITY_DOMAINS,
   LIGHT_BUTTONS_CARD_EDITOR_NAME,
   LIGHT_BUTTONS_CARD_NAME,
-  LIGHT_BUTTONS_DEFAULT_SHOW_LABELS,
 } from "./const";
 import {
   LightButtonsCardConfig,
@@ -194,9 +193,7 @@ export class LightButtonsCard extends LitElement implements LovelaceCard {
     if (!this._config || !this.hass || !this._config.entity) {
       return;
     }
-    const serviceData = {
-      entity_id: this._config.entity,
-    };
+    const serviceData = { entity_id: this._config.entity };
     switch (buttonConfig.type) {
       case "effect": {
         serviceData["effect"] = buttonConfig.effect;

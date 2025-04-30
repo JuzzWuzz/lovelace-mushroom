@@ -6,7 +6,6 @@ import {
   actionHandler,
   ActionHandlerEvent,
   computeRTL,
-  computeStateDisplay,
   handleAction,
   hasAction,
   HomeAssistant,
@@ -83,12 +82,8 @@ export class FormattedSensorCard
       primary_info: showName(config) ? "name" : "none",
       secondary_info: showState(config) ? "state" : "none",
       icon_type: showIcon(config) ? "icon" : "none",
-      tap_action: {
-        action: "none",
-      },
-      hold_action: {
-        action: "more-info",
-      },
+      tap_action: { action: "none" },
+      hold_action: { action: "more-info" },
       ...config,
     };
   }
@@ -125,15 +120,7 @@ export class FormattedSensorCard
       ? "Sensor Offline"
       : dataType !== undefined
         ? formatValueAndUom(stateObj.state, dataType, clampNegative).formatted()
-        : this.hass.formatEntityState
-          ? this.hass.formatEntityState(stateObj)
-          : computeStateDisplay(
-              this.hass.localize,
-              stateObj,
-              this.hass.locale,
-              this.hass.config,
-              this.hass.entities
-            );
+        : this.hass.formatEntityState(stateObj);
     const stateStyle = {};
     const stateColor = this._config?.state_color;
     if (stateColor) {

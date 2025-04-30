@@ -1,7 +1,6 @@
 import { assert } from "superstruct";
 import { html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { SIMPLE_APPEARANCE_FORM_SCHEMA } from "../../shared/config/simple-layout-config";
 import { LovelaceCardEditor, fireEvent } from "../../../ha";
 import setupCustomlocalize from "../../../localize";
 import { MushroomBaseElement } from "../../../utils/base-element";

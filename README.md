@@ -18,14 +18,14 @@ Mushroom mission is to propose easy to use components to build your [Home Assist
 
 ### Features
 
--   🛠 Editor for **all cards** and and **all options** (no need to edit `yaml`)
--   😍 Icon picker
--   🖌 Color picker
--   🚀 0 dependencies : no need to install another card.
--   🌈 Based on Material UI colors
--   🌓 Light and dark theme support
--   🎨 Optional theme customization
--   🌎 Internationalization
+- 🛠 Editor for **all cards** and and **all options** (no need to edit `yaml`)
+- 😍 Icon picker
+- 🖌 Color picker
+- 🚀 0 dependencies : no need to install another card.
+- 🌈 Based on Material UI colors
+- 🌓 Light and dark theme support
+- 🎨 Optional theme customization
+- 🌎 Internationalization
 
 The goal of Mushroom is not to provide custom card for deep customization. You can use the excellent [UI Lovelace Minimalist][ui-lovelace-minimalist] and [Button card][button-card] plugins for this.
 
@@ -46,20 +46,19 @@ _or_
 3. Search for "Mushroom"
 4. Click the download button. ⬇️
 
-
 ### Manual
 
 1. Download `mushroom.js` file from the [latest release][release-url].
 2. Put `mushroom.js` file into your `config/www` folder.
 3. Add reference to `mushroom.js` in Dashboard. There's two way to do that:
-    - **Using UI:** _Settings_ → _Dashboards_ → _More Options icon_ → _Resources_ → _Add Resource_ → Set _Url_ as `/local/mushroom.js` → Set _Resource type_ as `JavaScript Module`.
-      **Note:** If you do not see the Resources menu, you will need to enable _Advanced Mode_ in your _User Profile_
-    - **Using YAML:** Add following code to `lovelace` section.
-        ```yaml
-        resources:
-            - url: /local/mushroom.js
-              type: module
-        ```
+   - **Using UI:** _Settings_ → _Dashboards_ → _More Options icon_ → _Resources_ → _Add Resource_ → Set _Url_ as `/local/mushroom.js` → Set _Resource type_ as `JavaScript Module`.
+     **Note:** If you do not see the Resources menu, you will need to enable _Advanced Mode_ in your _User Profile_
+   - **Using YAML:** Add following code to `lovelace` section.
+     ```yaml
+     resources:
+       - url: /local/mushroom.js
+         type: module
+     ```
 
 ## Usage
 
@@ -74,24 +73,30 @@ All the Mushroom cards can be configured using Dashboard UI editor.
 
 Different cards are available for differents entities :
 
--   🚨 [Alarm card](docs/cards/alarm-control-panel.md)
--   🔔 [Chips card](docs/cards/chips.md)
--   🌡 [Climate card](docs/cards/climate.md)
--   🪟 [Cover card](docs/cards/cover.md)
--   🪄 [Entity card](docs/cards/entity.md)
--   🕳 [Empty card](docs/cards/empty.md)
--   💨 [Fan card](docs/cards/fan.md)
--   💧 [Humidifier card](docs/cards/humidifier.md)
--   💡 [Light card](docs/cards/light.md)
--   🔒 [Lock card](docs/cards/lock.md)
--   📺 [Media card](docs/cards/media-player.md)
--   🔢 [Number card](docs/cards/number.md)
--   🙋 [Person card](docs/cards/person.md)
--   📑 [Select card](docs/cards/select.md)
--   🛠 [Template card](docs/cards/template.md)
--   ✏️ [Title card](docs/cards/title.md)
--   📦 [Update card](docs/cards/update.md)
--   🧹 [Vacuum card](docs/cards/vacuum.md)
+- 🚨 [Alarm card](docs/cards/alarm-control-panel.md)
+- 🔔 [Chips card](docs/cards/chips.md)
+- 🌡 [Climate card](docs/cards/climate.md)
+- 🪟 [Cover card](docs/cards/cover.md)
+- 🪄 [Entity card](docs/cards/entity.md)
+- 🕳 [Empty card](docs/cards/empty.md)
+- 💨 [Fan card](docs/cards/fan.md)
+- 💧 [Humidifier card](docs/cards/humidifier.md)
+- 💡 [Light card](docs/cards/light.md)
+- 🔒 [Lock card](docs/cards/lock.md)
+- 📺 [Media card](docs/cards/media-player.md)
+- 🔢 [Number card](docs/cards/number.md)
+- 🙋 [Person card](docs/cards/person.md)
+- 📑 [Select card](docs/cards/select.md)
+- 🛠 [Template card](docs/cards/template.md)
+- ✏️ [Title card](docs/cards/title.md)
+- 📦 [Update card](docs/cards/update.md)
+- 🧹 [Vacuum card](docs/cards/vacuum.md)
+
+### Legacy cards
+
+Some cards are considered as legacy, are not available in the card picker but you can still use them :
+
+- 🛠 [Legacy Template card](docs/cards/legacy-template.md)
 
 Juzz Custom Cards
 
@@ -104,7 +109,7 @@ Juzz Custom Cards
 ### Badges
 
 A [template badge](docs/badges/template.md) is available if you're using at least Home Assistant 2024.8.
-  
+
 ### Theme customization
 
 Mushroom works without theme but you can add a theme for better experience by installing the [Mushroom Themes](https://github.com/piitaya/lovelace-mushroom-themes). If you want more information about themes, check out the official [Home Assistant documentation about themes][home-assitant-theme-docs].
@@ -167,9 +172,9 @@ If you want to help translating Mushroom, you can translate it directly from you
 2. Check that you have the latest Mushroom version on HACS
 3. Check that you have the latest Mushroom version by checking the browser console
 4. Clear your cache :
-    - delete mushroom resources (https://my.home-assistant.io/redirect/lovelace_resources/)
-    - uninstall Mushroom from HACS
-    - reinstall Mushroom from HACS
+   - delete mushroom resources (https://my.home-assistant.io/redirect/lovelace_resources/)
+   - uninstall Mushroom from HACS
+   - reinstall Mushroom from HACS
 
 ### My card mod configuration doesn't work.
 

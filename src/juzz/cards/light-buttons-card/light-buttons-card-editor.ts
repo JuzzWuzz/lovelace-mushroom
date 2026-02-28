@@ -1,8 +1,10 @@
 import { assert } from "superstruct";
 import { html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import memoizeOne from "memoize-one";
 import { LovelaceCardEditor, fireEvent } from "../../../ha";
 import setupCustomlocalize from "../../../localize";
+import { computeAlignmentOptions } from "../../../shared/config/appearance-config";
 import { MushroomBaseElement } from "../../../utils/base-element";
 import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
@@ -18,17 +20,30 @@ import {
   lightButtonsCardConfigStruct,
 } from "./light-buttons-card-config";
 
-const SCHEMA: HaFormSchema[] = [
-  { name: "entity", selector: { entity: { domain: LIGHT_ENTITY_DOMAINS } } },
-  {
-    type: "grid",
-    name: "",
-    schema: [
-      { name: "alignment", selector: { mush_alignment: {} } },
-      { name: "show_labels", selector: { boolean: {} } },
-    ],
-  },
-];
+const computeSchema = memoizeOne(
+  (customLocalize: ReturnType<typeof setupCustomlocalize>): HaFormSchema[] => [
+    {
+      name: "entity",
+      selector: { entity: { domain: LIGHT_ENTITY_DOMAINS } },
+    },
+    {
+      type: "grid",
+      name: "",
+      schema: [
+        {
+          name: "alignment",
+          selector: {
+            select: {
+              options: computeAlignmentOptions(customLocalize),
+              mode: "dropdown",
+            },
+          },
+        },
+        { name: "show_labels", selector: { boolean: {} } },
+      ],
+    },
+  ]
+);
 
 @customElement(LIGHT_BUTTONS_CARD_EDITOR_NAME)
 export class LightButtonsCardEditor
@@ -84,6 +99,9 @@ export class LightButtonsCardEditor
     //   `;
     // }
 
+    const customLocalize = setupCustomlocalize(this.hass);
+    const schema = computeSchema(customLocalize);
+
     const data: LightButtonsCardConfig = { ...this._config };
 
     // Handle setting defaults
@@ -93,7 +111,7 @@ export class LightButtonsCardEditor
       <ha-form
         .hass=${this.hass}
         .data=${data}
-        .schema=${SCHEMA}
+        .schema=${schema}
         .computeLabel=${this._computeLabel}
         @value-changed=${this._valueChanged}
       ></ha-form>

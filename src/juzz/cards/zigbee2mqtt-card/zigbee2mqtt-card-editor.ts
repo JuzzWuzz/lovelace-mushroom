@@ -1,5 +1,6 @@
 import { html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import memoizeOne from "memoize-one";
 import { assert } from "superstruct";
 import { LovelaceCardEditor, fireEvent } from "../../../ha";
 import setupCustomlocalize from "../../../localize";
@@ -8,7 +9,9 @@ import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
 import { loadHaComponents } from "../../../utils/loader";
 import { BASE_DEVICE_FORM_SCHEMA } from "../../shared/config/base-device-config";
-import { SIMPLE_APPEARANCE_FORM_SCHEMA } from "../../shared/config/simple-layout-config";
+import { computeSimpleAppearanceFormSchema } from "../../shared/config/simple-layout-config";
+import { ENTITY_TYPES } from "../../utils/base-device-card";
+import { capitalizeWords } from "../../utils/helpers";
 import {
   ZIGBEE2MQTT_CARD_DEFAULT_SHOW_LAST_SEEN,
   ZIGBEE2MQTT_CARD_DEFAULT_SHOW_RELATED_ENTITIES,
@@ -28,32 +31,44 @@ import {
   Zigbee2MQTTCardConfigStruct,
 } from "./zigbee2mqtt-card-config";
 
-const SCHEMA: HaFormSchema[] = [
-  {
-    name: "entity",
-    selector: { entity: { domain: ZIGBEE2MQTT_CARD_DOMAINS } },
-  },
-  { name: "name", selector: { text: {} } },
-  {
-    type: "grid",
-    name: "",
-    schema: [
-      { name: "entity_type", selector: { mush_entity_type: {} } },
-      { name: "icon_color", selector: { mush_color: {} } },
-    ],
-  },
-  ...SIMPLE_APPEARANCE_FORM_SCHEMA,
-  ...BASE_DEVICE_FORM_SCHEMA,
-  {
-    type: "grid",
-    name: "",
-    schema: [
-      { name: "show_power_status", selector: { boolean: {} } },
-      { name: "show_related_entities", selector: { boolean: {} } },
-      { name: "show_last_seen", selector: { boolean: {} } },
-    ],
-  },
+const ENTITY_TYPE_OPTIONS = [
+  { value: "", label: "Auto Detect" },
+  ...ENTITY_TYPES.map((t) => ({ value: t, label: capitalizeWords(t) })),
 ];
+
+const computeSchema = memoizeOne(
+  (customLocalize: ReturnType<typeof setupCustomlocalize>): HaFormSchema[] => [
+    {
+      name: "entity",
+      selector: { entity: { domain: ZIGBEE2MQTT_CARD_DOMAINS } },
+    },
+    { name: "name", selector: { text: {} } },
+    {
+      type: "grid",
+      name: "",
+      schema: [
+        {
+          name: "entity_type",
+          selector: {
+            select: { options: ENTITY_TYPE_OPTIONS, mode: "dropdown" },
+          },
+        },
+        { name: "icon_color", selector: { ui_color: {} } },
+      ],
+    },
+    ...computeSimpleAppearanceFormSchema(customLocalize),
+    ...BASE_DEVICE_FORM_SCHEMA,
+    {
+      type: "grid",
+      name: "",
+      schema: [
+        { name: "show_power_status", selector: { boolean: {} } },
+        { name: "show_related_entities", selector: { boolean: {} } },
+        { name: "show_last_seen", selector: { boolean: {} } },
+      ],
+    },
+  ]
+);
 
 @customElement(ZIGBEE2MQTT_CARD_EDITOR_NAME)
 export class Zigbee2MQTTCardEditor
@@ -106,6 +121,9 @@ export class Zigbee2MQTTCardEditor
       return nothing;
     }
 
+    const customLocalize = setupCustomlocalize(this.hass);
+    const schema = computeSchema(customLocalize);
+
     const data: Zigbee2MQTTCardConfig = { ...this._config };
 
     // Handle setting defaults
@@ -119,7 +137,7 @@ export class Zigbee2MQTTCardEditor
       <ha-form
         .hass=${this.hass}
         .data=${data}
-        .schema=${SCHEMA}
+        .schema=${schema}
         .computeLabel=${this._computeLabel}
         @value-changed=${this._valueChanged}
       ></ha-form>
@@ -129,6 +147,9 @@ export class Zigbee2MQTTCardEditor
   private _valueChanged(ev: CustomEvent): void {
     // Delete default values
     const newConfig = { ...ev.detail.value };
+    if (!newConfig.entity_type) {
+      delete newConfig.entity_type;
+    }
     if (newConfig.fill_container === false) {
       delete newConfig.fill_container;
     }

@@ -70,7 +70,6 @@ export class LightColorTempControl extends LitElement {
 
     const gradient = this._generateTemperatureGradient(minKelvin!, maxKelvin);
 
-    console.log(gradient);
     return html`
       <mushroom-slider
         .value=${colorTemp}
@@ -83,7 +82,7 @@ export class LightColorTempControl extends LitElement {
         style=${styleMap({
           "--temp-gradient": gradient,
         })}
-      />
+      ></mushroom-slider>
     `;
   }
 

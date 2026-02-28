@@ -1,5 +1,6 @@
 import { html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import memoizeOne from "memoize-one";
 import { assert } from "superstruct";
 import { fireEvent, LovelaceCardEditor } from "../../../ha";
 import setupCustomlocalize from "../../../localize";
@@ -7,7 +8,9 @@ import { MushroomBaseElement } from "../../../utils/base-element";
 import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
 import { loadHaComponents } from "../../../utils/loader";
-import { SIMPLE_APPEARANCE_FORM_SCHEMA } from "../../shared/config/simple-layout-config";
+import { computeSimpleAppearanceFormSchema } from "../../shared/config/simple-layout-config";
+import { capitalizeWords } from "../../utils/helpers";
+import { DATA_TYPES } from "../../utils/types";
 import {
   FORMATTED_SENSOR_CARD_DEFAULT_CLAMP_NEGATIVE,
   FORMATTED_SENSOR_CARD_DEFAULT_SHOW_ICON,
@@ -24,41 +27,51 @@ import {
   showState,
 } from "./formatted-sensor-card-config";
 
-const SCHEMA: HaFormSchema[] = [
-  { name: "entity", selector: { entity: { domain: "sensor" } } },
-  { name: "name", selector: { text: {} } },
-  {
-    type: "grid",
-    name: "",
-    schema: [
-      { name: "data_type", selector: { mush_data_type: {} } },
-      { name: "state_color", selector: { mush_color: {} } },
-    ],
-  },
-  {
-    type: "grid",
-    name: "",
-    schema: [
-      {
-        name: "icon",
-        selector: { icon: {} },
-        context: { icon_entity: "entity" },
-      },
-      { name: "icon_color", selector: { mush_color: {} } },
-    ],
-  },
-  ...SIMPLE_APPEARANCE_FORM_SCHEMA,
-  {
-    type: "grid",
-    name: "",
-    schema: [
-      { name: "show_icon", selector: { boolean: {} } },
-      { name: "show_name", selector: { boolean: {} } },
-      { name: "show_state", selector: { boolean: {} } },
-      { name: "clamp_negative", selector: { boolean: {} } },
-    ],
-  },
+const DATA_TYPE_OPTIONS = [
+  { value: "", label: "Auto Detect" },
+  ...DATA_TYPES.map((t) => ({ value: t, label: capitalizeWords(t) })),
 ];
+
+const computeSchema = memoizeOne(
+  (customLocalize: ReturnType<typeof setupCustomlocalize>): HaFormSchema[] => [
+    { name: "entity", selector: { entity: { domain: "sensor" } } },
+    { name: "name", selector: { text: {} } },
+    {
+      type: "grid",
+      name: "",
+      schema: [
+        {
+          name: "data_type",
+          selector: { select: { options: DATA_TYPE_OPTIONS, mode: "dropdown" } },
+        },
+        { name: "state_color", selector: { ui_color: {} } },
+      ],
+    },
+    {
+      type: "grid",
+      name: "",
+      schema: [
+        {
+          name: "icon",
+          selector: { icon: {} },
+          context: { icon_entity: "entity" },
+        },
+        { name: "icon_color", selector: { ui_color: {} } },
+      ],
+    },
+    ...computeSimpleAppearanceFormSchema(customLocalize),
+    {
+      type: "grid",
+      name: "",
+      schema: [
+        { name: "show_icon", selector: { boolean: {} } },
+        { name: "show_name", selector: { boolean: {} } },
+        { name: "show_state", selector: { boolean: {} } },
+        { name: "clamp_negative", selector: { boolean: {} } },
+      ],
+    },
+  ]
+);
 
 @customElement(FORMATTED_SENSOR_CARD_EDITOR_NAME)
 export class FormattedSensorCardEditor
@@ -103,6 +116,9 @@ export class FormattedSensorCardEditor
       return nothing;
     }
 
+    const customLocalize = setupCustomlocalize(this.hass);
+    const schema = computeSchema(customLocalize);
+
     const data: FormattedSensorCardConfig = { ...this._config };
 
     // Handle setting defaults
@@ -115,7 +131,7 @@ export class FormattedSensorCardEditor
       <ha-form
         .hass=${this.hass}
         .data=${data}
-        .schema=${SCHEMA}
+        .schema=${schema}
         .computeLabel=${this._computeLabel}
         @value-changed=${this._valueChanged}
       ></ha-form>
@@ -125,6 +141,9 @@ export class FormattedSensorCardEditor
   private _valueChanged(ev: CustomEvent): void {
     // Delete default values
     let newConfig = { ...ev.detail.value };
+    if (!newConfig.data_type) {
+      delete newConfig.data_type;
+    }
     if (newConfig.fill_container === false) {
       delete newConfig.fill_container;
     }

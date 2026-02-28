@@ -1,4 +1,6 @@
 import { Infer, boolean, object, optional } from "superstruct";
+import { computeLayoutOptions } from "../../../shared/config/appearance-config";
+import setupCustomlocalize from "../../../localize";
 import { HaFormSchema } from "../../../utils/form/ha-form";
 import { layoutStruct } from "../../../utils/layout";
 
@@ -11,13 +13,25 @@ export type SimpleAppearanceSharedConfig = Infer<
   typeof simpleAppearanceSharedConfigStruct
 >;
 
-export const SIMPLE_APPEARANCE_FORM_SCHEMA: HaFormSchema[] = [
-  {
-    type: "grid",
-    name: "",
-    schema: [
-      { name: "layout", selector: { mush_layout: {} } },
-      { name: "fill_container", selector: { boolean: {} } },
-    ],
-  },
-];
+export function computeSimpleAppearanceFormSchema(
+  customLocalize: ReturnType<typeof setupCustomlocalize>
+): HaFormSchema[] {
+  return [
+    {
+      type: "grid",
+      name: "",
+      schema: [
+        {
+          name: "layout",
+          selector: {
+            select: {
+              options: computeLayoutOptions(customLocalize),
+              mode: "dropdown",
+            },
+          },
+        },
+        { name: "fill_container", selector: { boolean: {} } },
+      ],
+    },
+  ];
+}

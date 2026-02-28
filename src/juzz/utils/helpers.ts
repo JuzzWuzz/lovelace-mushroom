@@ -1,6 +1,13 @@
 import { NO_VALUE } from "./const";
 import { DataType, DataTypeConfig, FormattedValue } from "./types";
 
+export function capitalizeWords(str: string): string {
+  return str
+    .split("_")
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join(" ");
+}
+
 export function getDataTypeForDeviceClass(
   deviceClass?: string
 ): DataType | undefined {

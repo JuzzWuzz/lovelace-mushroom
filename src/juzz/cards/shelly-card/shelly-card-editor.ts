@@ -1,5 +1,6 @@
 import { html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import memoizeOne from "memoize-one";
 import { assert } from "superstruct";
 import { LovelaceCardEditor, fireEvent } from "../../../ha";
 import setupCustomlocalize from "../../../localize";
@@ -8,7 +9,7 @@ import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
 import { loadHaComponents } from "../../../utils/loader";
 import { BASE_DEVICE_FORM_SCHEMA } from "../../shared/config/base-device-config";
-import { SIMPLE_APPEARANCE_FORM_SCHEMA } from "../../shared/config/simple-layout-config";
+import { computeSimpleAppearanceFormSchema } from "../../shared/config/simple-layout-config";
 import {
   UPDATE_DOMAINS,
   SHELLY_CARD_EDITOR_NAME,
@@ -22,13 +23,15 @@ import {
   useDeviceName,
 } from "./shelly-card-config";
 
-const SCHEMA: HaFormSchema[] = [
-  { name: "entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
-  { name: "name", selector: { text: {} } },
-  { name: "beta_entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
-  ...SIMPLE_APPEARANCE_FORM_SCHEMA,
-  ...BASE_DEVICE_FORM_SCHEMA,
-];
+const computeSchema = memoizeOne(
+  (customLocalize: ReturnType<typeof setupCustomlocalize>): HaFormSchema[] => [
+    { name: "entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
+    { name: "name", selector: { text: {} } },
+    { name: "beta_entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
+    ...computeSimpleAppearanceFormSchema(customLocalize),
+    ...BASE_DEVICE_FORM_SCHEMA,
+  ]
+);
 
 @customElement(SHELLY_CARD_EDITOR_NAME)
 export class ShellyCardEditor
@@ -72,6 +75,9 @@ export class ShellyCardEditor
       return nothing;
     }
 
+    const customLocalize = setupCustomlocalize(this.hass);
+    const schema = computeSchema(customLocalize);
+
     const data: ShellyCardConfig = { ...this._config };
 
     // Handle setting defaults
@@ -82,7 +88,7 @@ export class ShellyCardEditor
       <ha-form
         .hass=${this.hass}
         .data=${data}
-        .schema=${SCHEMA}
+        .schema=${schema}
         .computeLabel=${this._computeLabel}
         @value-changed=${this._valueChanged}
       ></ha-form>

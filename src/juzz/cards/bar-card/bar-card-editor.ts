@@ -1,5 +1,6 @@
 import { html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
+import memoizeOne from "memoize-one";
 import { assert } from "superstruct";
 import { fireEvent, LovelaceCardEditor } from "../../../ha";
 import setupCustomlocalize from "../../../localize";
@@ -7,7 +8,7 @@ import { MushroomBaseElement } from "../../../utils/base-element";
 import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
 import { loadHaComponents } from "../../../utils/loader";
-import { SIMPLE_APPEARANCE_FORM_SCHEMA } from "../../shared/config/simple-layout-config";
+import { computeSimpleAppearanceFormSchema } from "../../shared/config/simple-layout-config";
 import {
   BAR_CARD_DEFAULT_MAX,
   BAR_CARD_DEFAULT_MIN,
@@ -26,40 +27,42 @@ import {
   showState,
 } from "./bar-card-config";
 
-const SCHEMA: HaFormSchema[] = [
-  { name: "entity", selector: { entity: { domain: "sensor" } } },
-  { name: "name", selector: { text: {} } },
-  {
-    type: "grid",
-    name: "",
-    schema: [
-      {
-        name: "icon",
-        selector: { icon: {} },
-        context: { icon_entity: "entity" },
-      },
-      { name: "icon_color", selector: { mush_color: {} } },
-    ],
-  },
-  ...SIMPLE_APPEARANCE_FORM_SCHEMA,
-  {
-    type: "grid",
-    name: "",
-    schema: [
-      { name: "show_icon", selector: { boolean: {} } },
-      { name: "show_name", selector: { boolean: {} } },
-      { name: "show_state", selector: { boolean: {} } },
-    ],
-  },
-  {
-    type: "grid",
-    name: "",
-    schema: [
-      { name: "min", selector: { number: { mode: "box" } } },
-      { name: "max", selector: { number: { mode: "box" } } },
-    ],
-  },
-];
+const computeSchema = memoizeOne(
+  (customLocalize: ReturnType<typeof setupCustomlocalize>): HaFormSchema[] => [
+    { name: "entity", selector: { entity: { domain: "sensor" } } },
+    { name: "name", selector: { text: {} } },
+    {
+      type: "grid",
+      name: "",
+      schema: [
+        {
+          name: "icon",
+          selector: { icon: {} },
+          context: { icon_entity: "entity" },
+        },
+        { name: "icon_color", selector: { ui_color: {} } },
+      ],
+    },
+    ...computeSimpleAppearanceFormSchema(customLocalize),
+    {
+      type: "grid",
+      name: "",
+      schema: [
+        { name: "show_icon", selector: { boolean: {} } },
+        { name: "show_name", selector: { boolean: {} } },
+        { name: "show_state", selector: { boolean: {} } },
+      ],
+    },
+    {
+      type: "grid",
+      name: "",
+      schema: [
+        { name: "min", selector: { number: { mode: "box" } } },
+        { name: "max", selector: { number: { mode: "box" } } },
+      ],
+    },
+  ]
+);
 
 @customElement(BAR_CARD_EDITOR_NAME)
 export class BarCardEditor
@@ -106,6 +109,9 @@ export class BarCardEditor
       return nothing;
     }
 
+    const customLocalize = setupCustomlocalize(this.hass);
+    const schema = computeSchema(customLocalize);
+
     const data: BarCardConfig = { ...this._config };
 
     // Handle setting defaults
@@ -119,7 +125,7 @@ export class BarCardEditor
       <ha-form
         .hass=${this.hass}
         .data=${data}
-        .schema=${SCHEMA}
+        .schema=${schema}
         .computeLabel=${this._computeLabel}
         @value-changed=${this._valueChanged}
       ></ha-form>

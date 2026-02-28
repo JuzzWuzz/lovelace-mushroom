@@ -96,6 +96,7 @@ export class SelectCard
     const selectStyle = {};
     if (iconColor) {
       const iconRgbColor = computeRgbColor(iconColor);
+      selectStyle["--card-primary-color"] = `rgb(${iconRgbColor})`;
       selectStyle["--mdc-theme-primary"] = `rgb(${iconRgbColor})`;
     }
 
@@ -173,6 +174,7 @@ export class SelectCard
         }
         mushroom-select-option-control {
           flex: 1;
+          --card-primary-color: rgb(var(--rgb-state-entity));
           --mdc-theme-primary: rgb(var(--rgb-state-entity));
         }
       `,

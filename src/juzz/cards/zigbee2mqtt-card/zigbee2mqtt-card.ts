@@ -84,7 +84,7 @@ export class Zigbee2MQTTCard
   }
 
   protected get hasControls(): boolean {
-    return true;
+    return !!(this._config && showDeviceControls(this._config));
   }
 
   protected render() {
@@ -127,7 +127,7 @@ export class Zigbee2MQTTCard
     // Process the state
     const stateDisplay = deviceOffline
       ? "Device offline"
-      : this.getStateDisply(stateObj);
+      : this.getStateDisplay(stateObj);
 
     // Process the icon
     const iconStyle = {};
@@ -253,7 +253,7 @@ export class Zigbee2MQTTCard
       ${relatedEntities.map(
         (e) => html`
           <mushroom-inline-state-item .hass=${this.hass} .state=${e}>
-            <span>${this.getStateDisply(e)}</span>
+            <span>${this.getStateDisplay(e)}</span>
           </mushroom-inline-state-item>
         `
       )}

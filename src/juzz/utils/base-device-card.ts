@@ -24,16 +24,10 @@ export class MushroomBaseDeviceCard<
   T extends BaseConfig = BaseConfig,
   E extends HassEntity = HassEntity,
 > extends MushroomBaseCard<T, E> {
-  private _device?: DeviceRegistryEntry;
   get device(): DeviceRegistryEntry | undefined {
-    if (!this._device && this.hass && this._config?.entity) {
-      const deviceId = this.hass.entities[this._config.entity]?.device_id;
-      if (deviceId) {
-        this._device = this.hass.devices[deviceId];
-      }
-    }
-
-    return this._device;
+    if (!this.hass || !this._config?.entity) return undefined;
+    const deviceId = this.hass.entities[this._config.entity]?.device_id;
+    return deviceId ? this.hass.devices[deviceId] : undefined;
   }
 
   protected useDeviceNameDefault: boolean = false;
@@ -84,7 +78,7 @@ export class MushroomBaseDeviceCard<
       .map((entity) => this.hass.states[entity.entity_id]);
   }
 
-  protected getStateDisply(stateObj: HassEntity) {
+  protected getStateDisplay(stateObj: HassEntity) {
     return this.hass.formatEntityState(stateObj);
   }
 
@@ -151,30 +145,6 @@ export class MushroomBaseDeviceCard<
     }
 
     return [];
-  }
-
-  /**
-   * Compute the icon color to use based on the entity type
-   */
-  protected computeIconColorForEntityType(
-    entityType?: EntityType
-  ): string | undefined {
-    switch (entityType) {
-      case "air_purifier": {
-        return "green";
-      }
-      case "climate": {
-        return "purple";
-      }
-      case "contact": {
-        return "cyan";
-      }
-      case "light": {
-        return "deep-orange";
-      }
-    }
-
-    return undefined;
   }
 
   static get styles(): CSSResultGroup {

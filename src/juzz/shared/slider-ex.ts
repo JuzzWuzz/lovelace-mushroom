@@ -19,7 +19,7 @@ const getPercentageFromEvent = (e: HammerInput) => {
 };
 
 export const DEFAULT_SLIDER_THRESHOLD = 10;
-const getSliderThreshold = (element: any): number | undefined => {
+const getSliderThreshold = (element: HTMLElement): number | undefined => {
   const thresholdValue = window
     .getComputedStyle(element)
     .getPropertyValue("--slider-threshold");

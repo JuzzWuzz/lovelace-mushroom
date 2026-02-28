@@ -32,7 +32,7 @@ import {
 } from "./zigbee2mqtt-card-config";
 
 const ENTITY_TYPE_OPTIONS = [
-  { value: "", label: "Auto Detect" },
+  { value: "auto", label: "Auto Detect" },
   ...ENTITY_TYPES.map((t) => ({ value: t, label: capitalizeWords(t) })),
 ];
 
@@ -133,10 +133,13 @@ export class Zigbee2MQTTCardEditor
     data.show_related_entities = showRelatedEntities(data);
     data.show_last_seen = showLastSeen(data);
 
+    // Use sentinel "auto" so the label floats correctly when no entity_type is set
+    const displayData = { ...data, entity_type: data.entity_type ?? "auto" };
+
     return html`
       <ha-form
         .hass=${this.hass}
-        .data=${data}
+        .data=${displayData}
         .schema=${schema}
         .computeLabel=${this._computeLabel}
         @value-changed=${this._valueChanged}
@@ -147,7 +150,7 @@ export class Zigbee2MQTTCardEditor
   private _valueChanged(ev: CustomEvent): void {
     // Delete default values
     const newConfig = { ...ev.detail.value };
-    if (!newConfig.entity_type) {
+    if (newConfig.entity_type === "auto") {
       delete newConfig.entity_type;
     }
     if (newConfig.fill_container === false) {

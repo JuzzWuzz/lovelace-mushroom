@@ -28,7 +28,7 @@ import {
 } from "./formatted-sensor-card-config";
 
 const DATA_TYPE_OPTIONS = [
-  { value: "", label: "Auto Detect" },
+  { value: "auto", label: "Auto Detect" },
   ...DATA_TYPES.map((t) => ({ value: t, label: capitalizeWords(t) })),
 ];
 
@@ -127,10 +127,13 @@ export class FormattedSensorCardEditor
     data.show_state = showState(data);
     data.clamp_negative = clampNegative(data);
 
+    // Use sentinel "auto" so the label floats correctly when no data_type is set
+    const displayData = { ...data, data_type: data.data_type ?? "auto" };
+
     return html`
       <ha-form
         .hass=${this.hass}
-        .data=${data}
+        .data=${displayData}
         .schema=${schema}
         .computeLabel=${this._computeLabel}
         @value-changed=${this._valueChanged}
@@ -141,7 +144,7 @@ export class FormattedSensorCardEditor
   private _valueChanged(ev: CustomEvent): void {
     // Delete default values
     let newConfig = { ...ev.detail.value };
-    if (!newConfig.data_type) {
+    if (newConfig.data_type === "auto") {
       delete newConfig.data_type;
     }
     if (newConfig.fill_container === false) {

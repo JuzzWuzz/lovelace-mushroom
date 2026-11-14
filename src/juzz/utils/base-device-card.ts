@@ -1,6 +1,6 @@
 import { HassEntity } from "home-assistant-js-websocket";
 import { css, CSSResultGroup } from "lit";
-import { DeviceRegistryEntry } from "../../ha";
+import { DeviceRegistryEntry, UNAVAILABLE, UNKNOWN } from "../../ha";
 import "../shared/inline-state-item";
 import "../shared/row-container";
 import { MushroomBaseCard } from "../../utils/base-card";
@@ -60,23 +60,47 @@ export class MushroomBaseDeviceCard<
 
     if (!this.device || !entityId) return [];
 
-    // Get the possible suffixes for related entity IDs
-    const relatedEntitySuffixes =
+    const relatedEntities = Object.values(this.hass.entities)
+      .filter(
+        (entity) =>
+          entity.device_id === deviceId && entity.entity_id !== entityId
+      )
+      .map((entity) => this.hass.states[entity.entity_id])
+      .filter((state) => state !== undefined);
+
+    if (entityType === "air_purifier" && !configRelatedEntitiesSuffixes) {
+      return this.getAirPurifierEntities(relatedEntities);
+    }
+
+    const suffixes =
       configRelatedEntitiesSuffixes ??
       this.computeRelatedEntitySuffixes(entityType);
+    return relatedEntities.filter((state) =>
+      suffixes.some((suffix) => state.entity_id.endsWith(suffix))
+    );
+  }
 
-    return Object.values(this.hass.entities)
-      .filter((entity) => {
-        return (
-          entity.device_id === deviceId &&
-          entity.entity_id !== entityId &&
-          relatedEntitySuffixes.some((suffix) =>
-            entity.entity_id.endsWith(suffix)
-          ) &&
-          this.hass.states[entity.entity_id]
-        );
-      })
-      .map((entity) => this.hass.states[entity.entity_id]);
+  private getAirPurifierEntities(entities: HassEntity[]): HassEntity[] {
+    const sensors = entities.filter(
+      (state) =>
+        state.entity_id.startsWith("sensor.") &&
+        state.state !== "" &&
+        ![UNAVAILABLE, UNKNOWN].includes(state.state)
+    );
+    const bySuffix = (suffix: string) =>
+      sensors.find((sensor) => sensor.entity_id.endsWith(suffix));
+
+    const pm25 =
+      bySuffix("_pm25_density") ??
+      sensors.find((sensor) => sensor.attributes.device_class === "pm25") ??
+      bySuffix("pm2_5");
+
+    // Show the reported units (no AQI or RPM inferred from another metric).
+    return [
+      pm25,
+      bySuffix("_filter_life_level"),
+      bySuffix("motor_speed"),
+    ].filter((sensor) => sensor !== undefined);
   }
 
   protected getStateDisplay(stateObj: HassEntity) {
@@ -128,9 +152,6 @@ export class MushroomBaseDeviceCard<
    */
   private computeRelatedEntitySuffixes(entityType?: EntityType): string[] {
     switch (entityType) {
-      case "air_purifier": {
-        return ["pm2_5", "motor_speed"];
-      }
       case "climate": {
         return ["temperature", "humidity", "battery", "last_seen"];
       }

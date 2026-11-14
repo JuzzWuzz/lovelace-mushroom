@@ -3,7 +3,10 @@ import { html, nothing, TemplateResult } from "lit";
 import { customElement } from "lit/decorators.js";
 import { styleMap } from "lit/directives/style-map.js";
 import {
+  actionHandler,
+  ActionHandlerEvent,
   computeRTL,
+  handleAction,
   HomeAssistant,
   LovelaceCard,
   LovelaceCardEditor,
@@ -43,7 +46,7 @@ registerCustomCard({
   type: ZIGBEE2MQTT_CARD_NAME,
   name: "Mushroom Zigbee2MQTT Card",
   description:
-    "Card for Zigbee2MQTT sensors, lights, and wireless buttons. Shows primary and related device information",
+    "Card for Zigbee2MQTT sensors, lights, wireless buttons, and compatible air purifiers. Shows primary and related device information",
 });
 
 @customElement(ZIGBEE2MQTT_CARD_NAME)
@@ -102,6 +105,8 @@ export class Zigbee2MQTTCard
     const entityType =
       this._config.entity_type ?? this.computeEntityType(stateObj);
     const wirelessButton = entityType === "wireless_button";
+    const purifierFan =
+      entityType === "air_purifier" && stateObj.entity_id.startsWith("fan.");
 
     // A momentary action sensor can legitimately be blank or unknown.
     const deviceOffline =
@@ -143,6 +148,9 @@ export class Zigbee2MQTTCard
       iconStyle["--shape-color"] = `rgba(${iconRgbColor}, 0.2)`;
     }
 
+    const icon = html`
+      <ha-state-icon .hass=${this.hass} .stateObj=${stateObj}></ha-state-icon>
+    `;
     const rtl = computeRTL(this.hass);
     const appearance = computeAppearance(this._config);
     const lastSeen = this.renderLastSeen(lastSeenEntity);
@@ -162,16 +170,36 @@ export class Zigbee2MQTTCard
       >
         <mushroom-card .appearance=${appearance} ?rtl=${rtl}>
           <mushroom-state-item .appearance=${appearance} ?rtl=${rtl}>
-            <mushroom-shape-icon
-              slot="icon"
-              .disabled=${deviceOffline}
-              style=${styleMap(iconStyle)}
-            >
-              <ha-state-icon
-                .hass=${this.hass}
-                .stateObj=${stateObj}
-              ></ha-state-icon>
-            </mushroom-shape-icon>
+            ${purifierFan
+              ? html`
+                  <mushroom-shape-icon
+                    slot="icon"
+                    class="action"
+                    role="button"
+                    tabindex="0"
+                    aria-label=${name}
+                    aria-pressed=${stateObj.state === "on" ? "true" : "false"}
+                    .disabled=${deviceOffline}
+                    style=${styleMap(iconStyle)}
+                    @action=${this.handlePurifierAction}
+                    .actionHandler=${actionHandler({
+                      hasTap:
+                        stateObj.state === "on" || stateObj.state === "off",
+                      hasHold: true,
+                    })}
+                  >
+                    ${icon}
+                  </mushroom-shape-icon>
+                `
+              : html`
+                  <mushroom-shape-icon
+                    slot="icon"
+                    .disabled=${deviceOffline}
+                    style=${styleMap(iconStyle)}
+                  >
+                    ${icon}
+                  </mushroom-shape-icon>
+                `}
             <div slot="info">
               <mushroom-row-container .rowType=${"primary"}>
                 <span>${name}</span>
@@ -235,6 +263,16 @@ export class Zigbee2MQTTCard
     entity: HassEntity
   ): EntityType | undefined {
     const reference = this.hass.entities[entity.entity_id];
+    // Do not treat ordinary fan entities as air purifiers. The Xiaomi model
+    // identifier also supports fans whose entity ID has been renamed.
+    if (
+      entity.entity_id.startsWith("fan.") &&
+      (/(?:^|_)air_purifier$/.test(entity.entity_id.slice(4)) ||
+        reference?.translation_key === "air_purifier" ||
+        this.device?.model?.startsWith("zhimi.airp."))
+    ) {
+      return "air_purifier";
+    }
     if (
       reference?.device_id &&
       entity.entity_id.startsWith("sensor.") &&
@@ -256,6 +294,32 @@ export class Zigbee2MQTTCard
       if (isMqttAction) return "wireless_button";
     }
     return super.computeEntityType(entity);
+  }
+
+  private handlePurifierAction(event: ActionHandlerEvent): void {
+    const state = this._stateObj;
+    if (!this._config || !state?.entity_id.startsWith("fan.")) return;
+    const type = this._config.entity_type ?? this.computeEntityType(state);
+    if (type !== "air_purifier") return;
+
+    const action = event.detail.action;
+    if (
+      action !== "hold" &&
+      (action !== "tap" || !["on", "off"].includes(state.state))
+    ) {
+      return;
+    }
+
+    void handleAction(
+      this,
+      this.hass,
+      {
+        entity: state.entity_id,
+        tap_action: { action: "toggle" },
+        hold_action: { action: "more-info" },
+      },
+      action
+    );
   }
 
   private getIconColor(entityType?: EntityType, configIconColor?: string) {

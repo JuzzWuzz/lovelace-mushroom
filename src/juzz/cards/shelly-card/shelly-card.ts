@@ -18,6 +18,7 @@ import {
 // import "../../../shared/state-info";
 // import "../../../shared/state-item";
 import { computeAppearance } from "../../../utils/appearance";
+import { computeEntityName } from "../../../utils/compute-entity-name";
 import { MushroomBaseDeviceCard } from "../../utils/base-device-card";
 import { computeRgbColor } from "../../../utils/colors";
 import { registerCustomCard } from "../../../utils/custom-cards";
@@ -116,11 +117,11 @@ export class ShellyUpdateCard
       typeof installProgress === "number" || installProgress === true;
 
     // Process the name
-    const name =
-      this._config.name ||
-      this.getDeviceName() ||
-      stateObj.attributes.friendly_name ||
-      "";
+    const name = computeEntityName(
+      this.hass,
+      stateObj,
+      this._config.name || this.getDeviceName()
+    );
 
     // Process the icon and state
     let icon = "mdi:cloud-off-outline";

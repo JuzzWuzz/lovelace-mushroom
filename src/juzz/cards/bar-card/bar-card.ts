@@ -20,6 +20,7 @@ import {
 // import "../../../shared/state-item";
 import "../../../juzz/shared/slider-ex";
 import { computeAppearance } from "../../../utils/appearance";
+import { computeEntityName } from "../../../utils/compute-entity-name";
 import { MushroomBaseCard } from "../../../utils/base-card";
 import { cardStyle } from "../../../utils/card-styles";
 import { computeRgbColor } from "../../../utils/colors";
@@ -113,7 +114,11 @@ export class BarCard
     const available = isAvailable(stateObj);
 
     // Process the name
-    const name = this._config.name || stateObj.attributes.friendly_name || "";
+    const name = computeEntityName(
+      this.hass,
+      stateObj,
+      this._config.name || undefined
+    );
 
     // Process the state
     const stateDisplay = this.hass.formatEntityState(stateObj);

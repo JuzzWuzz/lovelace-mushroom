@@ -22,6 +22,7 @@ import {
 // import "../../../shared/state-info";
 // import "../../../shared/state-item";
 import { computeAppearance } from "../../../utils/appearance";
+import { computeEntityName } from "../../../utils/compute-entity-name";
 import { MushroomBaseCard } from "../../../utils/base-card";
 import { cardStyle } from "../../../utils/card-styles";
 import { computeRgbColor } from "../../../utils/colors";
@@ -107,7 +108,11 @@ export class FormattedSensorCard
     const sensorOffline = [UNAVAILABLE, UNKNOWN].includes(stateObj.state);
 
     // Process the name
-    const name = this._config.name || stateObj.attributes.friendly_name || "";
+    const name = computeEntityName(
+      this.hass,
+      stateObj,
+      this._config.name || undefined
+    );
 
     // Process the state
     const clampNegative =

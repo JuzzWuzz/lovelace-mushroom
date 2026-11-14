@@ -17,6 +17,7 @@ import {
 // import "../../../shared/state-info";
 // import "../../../shared/state-item";
 import { computeAppearance } from "../../../utils/appearance";
+import { computeEntityName } from "../../../utils/compute-entity-name";
 import {
   EntityType,
   MushroomBaseDeviceCard,
@@ -118,11 +119,11 @@ export class Zigbee2MQTTCard
     );
 
     // Process the name
-    const name =
-      this._config.name ||
-      this.getDeviceName() ||
-      stateObj.attributes.friendly_name ||
-      "";
+    const name = computeEntityName(
+      this.hass,
+      stateObj,
+      this._config.name || this.getDeviceName()
+    );
 
     // Process the state
     const stateDisplay = deviceOffline

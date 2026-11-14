@@ -205,7 +205,7 @@ export class LegacyTemplateCard
 
   public isTemplate(key: TemplateKey) {
     const value = this._config?.[key];
-    return value?.includes("{");
+    return typeof value === "string" && value.includes("{");
   }
 
   private getValue(key: TemplateKey) {
@@ -394,11 +394,13 @@ export class LegacyTemplateCard
     if (!unsubRenderTemplate) {
       return;
     }
+    this._unsubRenderTemplates.delete(key);
 
     try {
       const unsub = await unsubRenderTemplate;
-      unsub();
-      this._unsubRenderTemplates.delete(key);
+      // UnsubscribeFunc is typed `() => void` but resolves a promise that
+      // rejects with `not_found` if the subscription is already gone.
+      await unsub();
     } catch (err: any) {
       if (err.code === "not_found" || err.code === "template_error") {
         // If we get here, the connection was probably already closed. Ignore.

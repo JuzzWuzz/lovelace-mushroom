@@ -7,6 +7,7 @@ import setupCustomlocalize from "../../../localize";
 import { MushroomBaseElement } from "../../../utils/base-element";
 import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
+import { computeNameSchema } from "../../../utils/form/name-schema";
 import { loadHaComponents } from "../../../utils/loader";
 import { BASE_DEVICE_FORM_SCHEMA } from "../../shared/config/base-device-config";
 import { computeSimpleAppearanceFormSchema } from "../../shared/config/simple-layout-config";
@@ -24,9 +25,12 @@ import {
 } from "./shelly-card-config";
 
 const computeSchema = memoizeOne(
-  (customLocalize: ReturnType<typeof setupCustomlocalize>): HaFormSchema[] => [
+  (
+    customLocalize: ReturnType<typeof setupCustomlocalize>,
+    version: string
+  ): HaFormSchema[] => [
     { name: "entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
-    { name: "name", selector: { text: {} } },
+    computeNameSchema(version),
     { name: "beta_entity", selector: { entity: { domain: UPDATE_DOMAINS } } },
     ...computeSimpleAppearanceFormSchema(customLocalize),
     ...BASE_DEVICE_FORM_SCHEMA,
@@ -76,7 +80,7 @@ export class ShellyCardEditor
     }
 
     const customLocalize = setupCustomlocalize(this.hass);
-    const schema = computeSchema(customLocalize);
+    const schema = computeSchema(customLocalize, this.hass.config.version);
 
     const data: ShellyCardConfig = { ...this._config };
 

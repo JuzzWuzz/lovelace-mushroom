@@ -7,6 +7,7 @@ import setupCustomlocalize from "../../../localize";
 import { MushroomBaseElement } from "../../../utils/base-element";
 import { GENERIC_LABELS } from "../../../utils/form/generic-fields";
 import { HaFormSchema } from "../../../utils/form/ha-form";
+import { computeNameSchema } from "../../../utils/form/name-schema";
 import { loadHaComponents } from "../../../utils/loader";
 import { computeSimpleAppearanceFormSchema } from "../../shared/config/simple-layout-config";
 import {
@@ -28,9 +29,12 @@ import {
 } from "./bar-card-config";
 
 const computeSchema = memoizeOne(
-  (customLocalize: ReturnType<typeof setupCustomlocalize>): HaFormSchema[] => [
+  (
+    customLocalize: ReturnType<typeof setupCustomlocalize>,
+    version: string
+  ): HaFormSchema[] => [
     { name: "entity", selector: { entity: { domain: "sensor" } } },
-    { name: "name", selector: { text: {} } },
+    computeNameSchema(version),
     {
       type: "grid",
       name: "",
@@ -110,7 +114,7 @@ export class BarCardEditor
     }
 
     const customLocalize = setupCustomlocalize(this.hass);
-    const schema = computeSchema(customLocalize);
+    const schema = computeSchema(customLocalize, this.hass.config.version);
 
     const data: BarCardConfig = { ...this._config };
 

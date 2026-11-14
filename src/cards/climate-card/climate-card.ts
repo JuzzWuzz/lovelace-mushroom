@@ -33,6 +33,7 @@ import "../../shared/state-item";
 import { computeAppearance } from "../../utils/appearance";
 import { MushroomBaseCard } from "../../utils/base-card";
 import { cardStyle } from "../../utils/card-styles";
+import { computeEntityName } from "../../utils/compute-entity-name";
 import { registerCustomCard } from "../../utils/custom-cards";
 import { computeEntityPicture } from "../../utils/info";
 import { ClimateCardConfig } from "./climate-card-config";
@@ -161,18 +162,25 @@ export class ClimateCard
       return this.renderNotFound(this._config);
     }
 
-    const name = this._config.name || stateObj.attributes.friendly_name || "";
+    const name = computeEntityName(this.hass, stateObj, this._config.name);
     const icon = this._config.icon;
     const appearance = computeAppearance(this._config);
     const picture = computeEntityPicture(stateObj, appearance.icon_type);
 
     let stateDisplay = this.hass.formatEntityState(stateObj);
-    if (stateObj.attributes.current_temperature !== null) {
+    if (stateObj.attributes.current_temperature != null) {
       const temperature = this.hass.formatEntityAttributeValue(
         stateObj,
         "current_temperature"
       );
       stateDisplay += ` ⸱ ${temperature}`;
+    }
+    if (stateObj.attributes.current_humidity != null) {
+      const humidity = this.hass.formatEntityAttributeValue(
+        stateObj,
+        "current_humidity"
+      );
+      stateDisplay += ` ⸱ ${humidity}`;
     }
     const rtl = computeRTL(this.hass);
 

@@ -43,7 +43,7 @@ registerCustomCard({
   type: ZIGBEE2MQTT_CARD_NAME,
   name: "Mushroom Zigbee2MQTT Card",
   description:
-    "Card for Zigbee2MQTT devices like Contact, Climate, and Motion sensors. Shows the primary and related entity states",
+    "Card for Zigbee2MQTT sensors, lights, and wireless buttons. Shows primary and related device information",
 });
 
 @customElement(ZIGBEE2MQTT_CARD_NAME)
@@ -99,12 +99,14 @@ export class Zigbee2MQTTCard
       return this.renderNotFound(this._config);
     }
 
-    // Process availability
-    const deviceOffline = [UNAVAILABLE, UNKNOWN].includes(stateObj.state);
-
-    // Determine the Entity Type
     const entityType =
       this._config.entity_type ?? this.computeEntityType(stateObj);
+    const wirelessButton = entityType === "wireless_button";
+
+    // A momentary action sensor can legitimately be blank or unknown.
+    const deviceOffline =
+      stateObj.state === UNAVAILABLE ||
+      (!wirelessButton && stateObj.state === UNKNOWN);
 
     // Get the related entities (To add in their values on the screen)
     let relatedEntities: HassEntity[] = this.getDeviceEntities(entityType);
@@ -128,7 +130,9 @@ export class Zigbee2MQTTCard
     // Process the state
     const stateDisplay = deviceOffline
       ? "Device offline"
-      : this.getStateDisplay(stateObj);
+      : wirelessButton
+        ? ""
+        : this.getStateDisplay(stateObj);
 
     // Process the icon
     const iconStyle = {};
@@ -141,6 +145,16 @@ export class Zigbee2MQTTCard
 
     const rtl = computeRTL(this.hass);
     const appearance = computeAppearance(this._config);
+    const lastSeen = this.renderLastSeen(lastSeenEntity);
+    const hasRelatedEntities =
+      !deviceOffline &&
+      showRelatedEntities(this._config) &&
+      relatedEntities.length > 0;
+    const showSecondaryRow =
+      !wirelessButton ||
+      deviceOffline ||
+      lastSeen !== nothing ||
+      (appearance.layout === "horizontal" && hasRelatedEntities);
 
     return html`
       <ha-card
@@ -162,42 +176,86 @@ export class Zigbee2MQTTCard
               <mushroom-row-container .rowType=${"primary"}>
                 <span>${name}</span>
                 <div class="spacer"></div>
-                ${this.renderPowerState(deviceOffline, batteryEntity)}
+                ${this.renderPowerState(
+                  deviceOffline,
+                  batteryEntity,
+                  !wirelessButton
+                )}
               </mushroom-row-container>
-              <mushroom-row-container
-                .rowType=${"secondary"}
-                .tightSpacing=${true}
-              >
-                <span>${stateDisplay}</span>
-                <div class="spacer"></div>
-                ${appearance.layout === "horizontal"
-                  ? this.renderRelatedEntities(deviceOffline, relatedEntities)
-                  : nothing}
-                ${this.renderLastSeen(lastSeenEntity)}
-              </mushroom-row-container>
+              ${showSecondaryRow
+                ? html`
+                    <mushroom-row-container
+                      .rowType=${"secondary"}
+                      .tightSpacing=${true}
+                    >
+                      ${stateDisplay
+                        ? html`<span>${stateDisplay}</span>`
+                        : nothing}
+                      <div class="spacer"></div>
+                      ${appearance.layout === "horizontal"
+                        ? this.renderRelatedEntities(
+                            deviceOffline,
+                            relatedEntities
+                          )
+                        : nothing}
+                      ${lastSeen}
+                    </mushroom-row-container>
+                  `
+                : nothing}
             </div>
           </mushroom-state-item>
           <div class="actions">
             ${appearance.layout === "horizontal"
               ? this.renderDeviceControls()
               : html`
-                  <mushroom-row-container
-                    .rowType=${"secondary"}
-                    .alignment=${"justify"}
-                    .noWrap=${false}
-                    .tightSpacing=${true}
-                  >
-                    ${this.renderRelatedEntities(
-                      deviceOffline,
-                      relatedEntities
-                    )}
-                  </mushroom-row-container>
+                  ${!wirelessButton || hasRelatedEntities
+                    ? html`
+                        <mushroom-row-container
+                          .rowType=${"secondary"}
+                          .alignment=${"justify"}
+                          .noWrap=${false}
+                          .tightSpacing=${true}
+                        >
+                          ${this.renderRelatedEntities(
+                            deviceOffline,
+                            relatedEntities
+                          )}
+                        </mushroom-row-container>
+                      `
+                    : nothing}
                   ${this.renderDeviceControls()}
                 `}
           </div>
         </mushroom-card>
       </ha-card>
     `;
+  }
+
+  protected override computeEntityType(
+    entity: HassEntity
+  ): EntityType | undefined {
+    const reference = this.hass.entities[entity.entity_id];
+    if (
+      reference?.device_id &&
+      entity.entity_id.startsWith("sensor.") &&
+      (reference.translation_key === "action" ||
+        entity.entity_id.endsWith("_action"))
+    ) {
+      // Some HA registry display entries omit platform. In that case,
+      // require a same-device battery sensor instead of inferring from
+      // an action-like ID alone.
+      const isMqttAction =
+        reference.platform === "mqtt" ||
+        (!reference.platform &&
+          Object.values(this.hass.entities).some(
+            (entry) =>
+              entry.device_id === reference.device_id &&
+              entry.entity_id.startsWith("sensor.") &&
+              entry.entity_id.endsWith("_battery")
+          ));
+      if (isMqttAction) return "wireless_button";
+    }
+    return super.computeEntityType(entity);
   }
 
   private getIconColor(entityType?: EntityType, configIconColor?: string) {
@@ -228,7 +286,8 @@ export class Zigbee2MQTTCard
 
   private renderPowerState(
     deviceOffline: boolean,
-    batteryEntity?: HassEntity
+    batteryEntity?: HassEntity,
+    showMainsFallback = true
   ): TemplateResult | typeof nothing {
     if (!this._config || !showPowerStatus(this._config) || deviceOffline) {
       return nothing;
@@ -239,7 +298,9 @@ export class Zigbee2MQTTCard
           .hass=${this.hass}
           .stateObj=${batteryEntity}
         ></ha-state-icon>`
-      : html`<ha-icon icon="mdi:power-plug"></ha-icon>`;
+      : showMainsFallback
+        ? html`<ha-icon icon="mdi:power-plug"></ha-icon>`
+        : nothing;
   }
 
   private renderRelatedEntities(

@@ -15,6 +15,7 @@ export const ENTITY_TYPES = [
   "contact",
   "light",
   "motion",
+  "wireless_button",
 ] as const;
 export type EntityType = (typeof ENTITY_TYPES)[number];
 
@@ -133,7 +134,8 @@ export class MushroomBaseDeviceCard<
       case "climate": {
         return ["temperature", "humidity", "battery", "last_seen"];
       }
-      case "contact": {
+      case "contact":
+      case "wireless_button": {
         return ["battery", "last_seen"];
       }
       case "light": {

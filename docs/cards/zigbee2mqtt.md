@@ -37,8 +37,19 @@ Based on the EntityType, the card will look at the device it belongs to and find
 
 | EntityType     | Default color | Entity suffixes                                              |
 | :------------- | :------------ | :----------------------------------------------------------- |
-| `air_purifier` | `yellow`      | [ `pm2_5`, `motor_speed` ]                                   |
+| `air_purifier` | `yellow`      | PM2.5, filter life, motor speed (where exposed)              |
 | `climate`      | `purple`      | [ `temperature`, `humidity`, `battery`, `last_seen` ]        |
 | `contact`      | `cyan`        | [ `battery`, `last_seen` ]                                   |
 | `light`        | `deep-orange` | [ `last_seen` ]                                              |
 | `motion`       | `pink`        | [ `illuminance`, `illuminance_lux`, `battery`, `last_seen` ] |
+
+### Air purifiers
+
+Use the purifier's Home Assistant `fan` entity as the main entity. Compatible purifiers are detected automatically; if it isn't detected, choose **Air Purifier** under **Entity Type**.
+
+```yaml
+type: custom:mushroom-zigbee2mqtt-card
+entity: fan.bedroom_air_purifier
+```
+
+Tap the icon to turn the purifier on or off. Hold it to open the Home Assistant more-info dialog, where supported presets can be selected. The card shows measured PM2.5, filter life, and motor speed when Home Assistant has those readings on the same device. A filter reading of 0% is displayed. The card does not calculate AQI or infer motor speed from a preset.
